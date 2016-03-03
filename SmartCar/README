@@ -1,0 +1,7 @@
+demo loop application
+
+Following files must be copied to the target
+rc.local -->/etc/rc.local
+demoloop.sh -->/home/pi/demoloop.sh
+
+By default starts the application seeker-demo1 after pressing the abort button. Can be changed in demoloop.sh
