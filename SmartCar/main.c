@@ -79,11 +79,19 @@ void sigintHandler(int sig_num)
 
 void LogCsvSint16(char *FileName,sint16 *Data,uint16 Num);
 
+void printBanner();
+
 int main(int argc, char *argv[])
 {
     int res;
 
+    //Force printf to print text to terminal
+    setvbuf(stdout, NULL, _IONBF, 0);
+
     AnsiCls();
+
+    printBanner();
+
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_GREEN);
     printf("Initializing RS485 modules...\n");
 
@@ -279,4 +287,18 @@ int main(int argc, char *argv[])
     }
 
     return 0;
+}
+
+void printBanner()
+{
+    printf("%s%s%s%s%s%s%s%s%s",
+           "   _____                      _    _____ _ _            \n",
+           "  / ____|                    | |  / ____(_) |           \n",
+           " | (___  _ __ ___   __ _ _ __| |_| |     _| |_ _   _    \n",
+           "  \\___ \\| '_ ` _ \\ / _` | '__| __| |    | | __| | | |   \n",
+           "  ____) | | | | | | (_| | |  | |_| |____| | |_| |_| |   \n",
+           " |_____/|_| |_| |_|\\__,_|_|   \\__|\\_____|_|\\__|\\__, |   \n",
+           "                                                __/ |   \n",
+           " ==============================================|___/=   \n",
+           "  :: SmartCity Car - 2016 ::               (v. 0.0.1)   \n\n");
 }

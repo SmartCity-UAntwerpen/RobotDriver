@@ -6,6 +6,8 @@
 #include "math.h"
 #include <pthread.h>
 
+pthread_t driveThread;
+
 /**
  * \brief Initialize drive system
  * \return
@@ -15,6 +17,10 @@
 int DriveInit(void);
 
 int AbortDriving(void);
+
+int WaitForDriving(void);
+
+bool IsDriving(void);
 
 /**
  * \brief Drive robot straight forward over specified distance with specified speed. Returns after drive is complete.

@@ -7,8 +7,6 @@
 #include "math.h"
 #include "timestep.h"
 
-pthread_t driveThread;
-
 static float const MMPD = 0.46;     // mm per degree
 static float const MMRD = 2;        // mm per degree to rotate
 static uint16 const KP = 1800;      // first value was 2100, this one seems more stable
@@ -26,6 +24,7 @@ uint16 iRcal;                       // right sensor calibrated value on drive st
 float _Distance;
 float _Angle;
 float _Speed;
+bool _driveThreadRunning = false;
 
 /**
  * \brief Initialize drive system
@@ -69,14 +68,15 @@ int AbortDriving(void)
 {
     int res;
 
-    if(driveThread != null)
+    if(_driveThreadRunning)
     {
-        printf("ABORT driving!");
+        printf("ABORT driving!\n");
 
         //Kill drive thread
         pthread_cancel(driveThread);
 
         //Shutdown motors
+        res=LegoMotorSetup(&LegoMotor,1,0,0);
         if (res>0) printf("Abort handler: LegoMotorSetup() CH1 fail.\n");
         res=LegoMotorSetup(&LegoMotor,2,0,0);
         if (res>0) printf("Abort handler: LegoMotorSetup() CH2 fail.\n");
@@ -89,10 +89,52 @@ int AbortDriving(void)
         res=LegoMotorDirectControl(&LegoMotor,3,0);
         if (res>0) printf("Abort handler: LegoMotorDirectControl() CH3 fail.\n");
 
+        _driveThreadRunning = false;
+
         return 0;
     }
 
     return -1;
+}
+
+int WaitForDriving(void)
+{
+    if(_driveThreadRunning)
+    {
+        if(pthread_join(driveThread, NULL) != 0)
+        {
+            return -2;
+        }
+
+    }
+    else
+    {
+        return -1;
+    }
+
+    _driveThreadRunning = false;
+
+    return 0;
+}
+
+int getWheelPosition(int* posL, int* posR)
+{
+    sint16 encodeL, encodeR;
+
+    //Get encoder position of motors;
+    LegoMotorGetPos(&LegoMotor, MOTOR_L, &encodeL);
+    LegoMotorGetPos(&LegoMotor, MOTOR_R, &encodeR);
+
+    //Calculate position in mm
+    *posL = encodeL;
+    *posR = encodeR;
+
+    return (*posL + *posR)/2;
+}
+
+bool IsDriving(void)
+{
+    return _driveThreadRunning;
 }
 
 /**
@@ -102,7 +144,7 @@ int AbortDriving(void)
 */
 int DriveStraightDistance(float Distance, float Speed)
 {
-    if(driveThread == null)
+    if(!_driveThreadRunning)
     {
         _Distance = Distance;
         _Speed = Speed;
@@ -113,6 +155,8 @@ int DriveStraightDistance(float Distance, float Speed)
 
             return -2;
         }
+
+        _driveThreadRunning = true;
 
         return 0;
     }
@@ -169,6 +213,8 @@ void* _DriveStraightDistance(void* args)
             TimeStep(0);
         }
     }
+
+    return NULL;
 }
 
 
@@ -179,7 +225,7 @@ void* _DriveStraightDistance(void* args)
 */
 int DriveRotateRWheel(float Angle,float Speed)
 {
-    if(driveThread == null)
+    if(!_driveThreadRunning)
     {
         _Angle = Angle;
         _Speed = Speed;
@@ -190,6 +236,8 @@ int DriveRotateRWheel(float Angle,float Speed)
 
             return -2;
         }
+
+        _driveThreadRunning = true;
 
         return 0;
     }
@@ -216,8 +264,9 @@ void* _DriveRotateRWheel(void* args)
     LegoMotorSetup(&LegoMotor,MOTOR_R,1,1);
     LegoMotorSetup(&LegoMotor,MOTOR_L,0,0);
 
-    // reset angular motor position right wheel
+    // reset angular motor position
     LegoMotorSetPos(&LegoMotor, MOTOR_R, 0);
+    LegoMotorSetPos(&LegoMotor, MOTOR_L, 0);
 
     // Setup timestep module with time step of 10ms
     TimeStepInit(10000);
@@ -242,6 +291,8 @@ void* _DriveRotateRWheel(void* args)
             TimeStep(0);
         }
     }
+
+    return NULL;
 }
 
 
@@ -252,7 +303,7 @@ void* _DriveRotateRWheel(void* args)
 */
 int DriveRotateLWheel(float Angle, float Speed)
 {
-    if(driveThread == null)
+    if(!_driveThreadRunning)
     {
         _Angle = Angle;
         _Speed = Speed;
@@ -263,6 +314,8 @@ int DriveRotateLWheel(float Angle, float Speed)
 
             return -2;
         }
+
+        _driveThreadRunning = true;
 
         return 0;
     }
@@ -289,7 +342,8 @@ void* _DriveRotateLWheel(void* args)
     LegoMotorSetup(&LegoMotor,MOTOR_L,1,1);
     LegoMotorSetup(&LegoMotor,MOTOR_R,0,0);
 
-    // reset motor angular pos L wheel
+    // reset motor angular pos
+    LegoMotorSetPos(&LegoMotor, MOTOR_R, 0);
     LegoMotorSetPos(&LegoMotor, MOTOR_L, 0);
 
     // Setup timestep module with time step of 10ms
@@ -315,6 +369,8 @@ void* _DriveRotateLWheel(void* args)
             TimeStep(0);
         }
     }
+
+    return NULL;
 }
 
 
@@ -325,7 +381,7 @@ void* _DriveRotateLWheel(void* args)
 */
 int DriveRotateCenter(float Angle, float Speed)
 {
-    if(driveThread == null)
+    if(!_driveThreadRunning)
     {
         _Angle = Angle;
         _Speed = Speed;
@@ -336,6 +392,8 @@ int DriveRotateCenter(float Angle, float Speed)
 
             return -2;
         }
+
+        _driveThreadRunning = true;
 
         return 0;
     }
@@ -389,6 +447,8 @@ void* _DriveRotateCenter(void* args)
             TimeStep(0);
         }
     }
+
+    return NULL;
 }
 
 
@@ -440,7 +500,7 @@ int calibrate()
 */
 int DriveLineFollowDistance(int Distance, float Speed)
 {
-    if(driveThread == null)
+    if(!_driveThreadRunning)
     {
         _Distance = Distance;
         _Speed = Speed;
@@ -451,6 +511,8 @@ int DriveLineFollowDistance(int Distance, float Speed)
 
             return -2;
         }
+
+        _driveThreadRunning = true;
 
         return 0;
     }
@@ -549,6 +611,8 @@ void* _DriveLineFollowDistance(void* args)
 
         totaldist = (nextL+nextR)*MMPD /2;
     }
+
+    return NULL;
 }
 
 
@@ -558,7 +622,7 @@ void* _DriveLineFollowDistance(void* args)
 */
 int DriveLineFollow(float Speed)
 {
-    if(driveThread == null)
+    if(!_driveThreadRunning)
     {
         _Speed = Speed;
 
@@ -568,6 +632,8 @@ int DriveLineFollow(float Speed)
 
             return -2;
         }
+
+        _driveThreadRunning = true;
 
         return 0;
     }
@@ -669,4 +735,6 @@ void* _DriveLineFollow(void* args)
             stop = 1;
         }
     }
+
+    return NULL;
 }

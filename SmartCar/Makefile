@@ -1,6 +1,6 @@
 CC=/home/lubuntu/rpi/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-gcc
 APP_BINARY=SmartCar
-REMOTE_SERVER=pi@robot6
+REMOTE_SERVER=pi@robot10
 REMOTE_PATH=/home/pi
 REMOTE_PASS='raspberry'
 ML=/home/lubuntu/minimod/Libs/
@@ -10,7 +10,7 @@ LOGFILE='log.csv'
 CFLAGS += -g -DLINUX -Wall -I$(ML) -I$(ML_ROB) -I.
 LFLAGS += -lpthread -L$(ML) -lrt
 
-OBJECTS=main.o robotapp.o $(ML_ROB)timestep.o $(ML_ROB)TimeSupport.o $(ML)lin-rpi-serlib.o $(ML)lin-rs485client.o $(ML)crc.o $(ML)rf-cc1101.o $(ML)lego-motor.o $(ML)lego-sensor.o $(ML)lin-delay.o $(ML)lin-gpio.o $(ML)lin-lego-motor-log.o $(ML)pwr-liion1a.o
+OBJECTS=main.o robotapp.o $(ML_ROB)timestep.o $(ML_ROB)TimeSupport.o $(ML)lin-rpi-serlib.o $(ML)lin-rs485client.o $(ML)crc.o $(ML)rf-cc1101.o $(ML)lego-motor.o $(ML)lego-sensor.o $(ML)lin-delay.o $(ML)lin-gpio.o $(ML)lin-lego-motor-log.o $(ML)pwr-liion1a.o $(ML)ansi.o $(ML)imu.o msgqueue.o drive.o speaker.o
 
 all: SmartCar
 Debug: SmartCar

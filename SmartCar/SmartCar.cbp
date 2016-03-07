@@ -64,14 +64,30 @@
 		</Unit>
 		<Unit filename="../lib/timestep.h" />
 		<Unit filename="Makefile" />
+		<Unit filename="commInterface.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="commInterface.h" />
+		<Unit filename="drive.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="drive.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="msgqueue.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="msgqueue.h" />
 		<Unit filename="project.h" />
 		<Unit filename="robotapp.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="robotapp.h" />
+		<Unit filename="speaker.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="speaker.h" />
 		<Extensions>
 			<code_completion>
 				<search_path add="/home/lubuntu/minimod/Libs" />

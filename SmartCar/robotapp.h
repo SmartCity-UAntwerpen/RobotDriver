@@ -13,7 +13,10 @@
 #include "TimeSupport.h"
 #include <stdlib.h>
 #include <pthread.h>
+#include <stdbool.h>
 #include "speaker.h"
+#include "drive.h"
+#include "msgqueue.h"
 
 
 #define RS485_LEGO_MOTOR_ADDR 1
