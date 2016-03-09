@@ -1,6 +1,5 @@
 #include "msgqueue.h"
 
-pthread_t dispatchThread;
 pthread_mutex_t queueLock;
 
 struct msg *queuePointer;

@@ -126,8 +126,8 @@ int getWheelPosition(int* posL, int* posR)
     LegoMotorGetPos(&LegoMotor, MOTOR_R, &encodeR);
 
     //Calculate position in mm
-    *posL = encodeL;
-    *posR = encodeR;
+    *posL = encodeL * MMPD/2;
+    *posR = encodeR * MMPD/2;
 
     return (*posL + *posR)/2;
 }

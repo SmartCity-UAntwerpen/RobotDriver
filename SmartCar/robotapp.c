@@ -6,7 +6,7 @@ void RobotApp(int argc, char *argv[])
 {
     struct msg *newMsg;
 
-    setSpeakerMute(false);
+    setSpeakerMute(true);
 
     //Read arguments
     /*if(argc < 1)
@@ -65,7 +65,7 @@ void RobotApp(int argc, char *argv[])
 
         sleep(1);
 
-        //i++;
+        i++;
     }
 
     sleep(5);
@@ -84,8 +84,6 @@ void RobotApp(int argc, char *argv[])
     newMsg->numOfParm = 0;
     newMsg->values = NULL;
     newMsg->Next = NULL;
-
-    addMsg(newMsg);
 
     addMsg(newMsg);
 

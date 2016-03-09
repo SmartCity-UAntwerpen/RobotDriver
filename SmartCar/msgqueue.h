@@ -19,6 +19,8 @@ enum msg_id {
     DRIVE_LEFT
 };
 
+pthread_t dispatchThread;
+
 int runQueueDispatcher(void);
 int stopQueueDispatcher(void);
 bool msgQueueActive(void);

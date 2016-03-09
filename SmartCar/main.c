@@ -40,10 +40,14 @@ void* AbortHandler(void *arg)
             printf("1\n");
             sem_wait(&RS485Client.Busy); //Block RS485 system
             printf("2\n");
-            if(MasterThread!=CurThread) pthread_cancel(MasterThread); //Now kill the master thread in case the abort button has been pressed
+            pthread_cancel(dispatchThread); //Now kill the message queue thread
             printf("3\n");
-            sem_post(&RS485Client.Busy); //And release control to the termination calls below
+            if(MasterThread!=CurThread) pthread_cancel(MasterThread); //Now kill the master thread in case the abort button has been pressed
             printf("4\n");
+            pthread_cancel(driveThread);  //Now kill the drive thread
+            printf("5\n");
+            sem_post(&RS485Client.Busy); //And release control to the termination calls below
+            printf("6\n");
             res=LegoMotorSetup(&LegoMotor,1,0,0);
             if (res>0) printf("Abort handler: LegoMotorSetup() CH1 fail.\n");
             res=LegoMotorSetup(&LegoMotor,2,0,0);
