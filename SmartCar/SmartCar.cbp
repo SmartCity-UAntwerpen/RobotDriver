@@ -68,13 +68,20 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="commInterface.h" />
+		<Unit filename="dijkstra.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="dijkstra.h" />
 		<Unit filename="drive.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="drive.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="map.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="map.h" />
 		<Unit filename="msgqueue.c">
 			<Option compilerVar="CC" />
 		</Unit>

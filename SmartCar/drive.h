@@ -7,6 +7,7 @@
 #include <pthread.h>
 
 pthread_t driveThread;
+pthread_mutex_t _driveThreadLock;
 
 /**
  * \brief Initialize drive system

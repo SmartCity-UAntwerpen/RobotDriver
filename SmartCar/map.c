@@ -43,3 +43,23 @@ void initializeMap(NodeStruct* map)
     InitMap(map, 10, 11, -1, -1, -1, 5, -1, -1, -1);
     InitMap(map, 11, -1, 10, 9, 5, -1, 5, 2, 3);
 }
+
+int parseMapFile(char* fileName)
+{
+    FILE* mapFile;
+
+    //Read mapfile
+    mapFile = fopen(strcat("./", fileName, "r");
+
+    if(mapFile == NULL)
+    {
+        printf("Could not open file: %s\n", fileName);
+
+        return 1;   //Could not read file
+    }
+
+    //Close mapfile
+    fclose(mapFile);
+
+    return 0;
+}

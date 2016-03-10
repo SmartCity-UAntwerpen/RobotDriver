@@ -6,7 +6,7 @@ void RobotApp(int argc, char *argv[])
 {
     struct msg *newMsg;
 
-    setSpeakerMute(true);
+    setSpeakerMute(false);
 
     //Read arguments
     /*if(argc < 1)
@@ -50,8 +50,6 @@ void RobotApp(int argc, char *argv[])
 
         printf("Message added: DRIVE_STRAIGHT\n");
 
-        sleep(1);
-
         newMsg = (struct msg *) malloc (sizeof(struct msg));
 
         newMsg->id = DRIVE_RIGHT;
@@ -63,20 +61,13 @@ void RobotApp(int argc, char *argv[])
 
         printf("Message added: DRIVE_RIGHT\n");
 
-        sleep(1);
-
         i++;
     }
 
-    sleep(5);
-
-    printf("Abort driving\n");
-
-    AbortDriving();
-
-    sleep(2);
-
+    WaitForDriving();
+    sleep(1);
     flushQueue();
+    AbortDriving();
 
     newMsg = (struct msg *) malloc (sizeof(struct msg));
 
@@ -85,14 +76,14 @@ void RobotApp(int argc, char *argv[])
     newMsg->values = NULL;
     newMsg->Next = NULL;
 
-    addMsg(newMsg);
+    //addMsg(newMsg);
 
-    printf("Message added: DRIVE_STRAIGHT\n");
+    //printf("Message added: DRIVE_STRAIGHT\n");
 
-    while(1)
-    {
+while(1)
+{
+}
 
-    }
 /*
 while(1)
 {

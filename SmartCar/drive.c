@@ -25,6 +25,7 @@ float _Distance;
 float _Angle;
 float _Speed;
 bool _driveThreadRunning = false;
+bool _cancelDriving = false;
 
 /**
  * \brief Initialize drive system
@@ -70,10 +71,14 @@ int AbortDriving(void)
 
     if(_driveThreadRunning)
     {
+        pthread_mutex_lock(&_driveThreadLock);
+
         printf("ABORT driving!\n");
 
-        //Kill drive thread
-        pthread_cancel(driveThread);
+        //Set the cancel driving flag high
+        _cancelDriving = true;
+
+        pthread_join(driveThread, NULL);
 
         //Shutdown motors
         res=LegoMotorSetup(&LegoMotor,1,0,0);
@@ -90,11 +95,14 @@ int AbortDriving(void)
         if (res>0) printf("Abort handler: LegoMotorDirectControl() CH3 fail.\n");
 
         _driveThreadRunning = false;
+        _cancelDriving = false;
+
+        pthread_mutex_unlock(&_driveThreadLock);
 
         return 0;
     }
 
-    return -1;
+    return 1;
 }
 
 int WaitForDriving(void)
@@ -103,16 +111,14 @@ int WaitForDriving(void)
     {
         if(pthread_join(driveThread, NULL) != 0)
         {
-            return -2;
+            return 2;
         }
 
     }
     else
     {
-        return -1;
+        return 1;
     }
-
-    _driveThreadRunning = false;
 
     return 0;
 }
@@ -146,6 +152,8 @@ int DriveStraightDistance(float Distance, float Speed)
 {
     if(!_driveThreadRunning)
     {
+        pthread_mutex_lock(&_driveThreadLock);
+
         _Distance = Distance;
         _Speed = Speed;
 
@@ -153,15 +161,19 @@ int DriveStraightDistance(float Distance, float Speed)
         {
             printf("Error while creating drive thread!\n");
 
-            return -2;
+            pthread_mutex_unlock(&_driveThreadLock);
+
+            return 2;
         }
 
         _driveThreadRunning = true;
 
+        pthread_mutex_unlock(&_driveThreadLock);
+
         return 0;
     }
 
-    return -1;
+    return 1;
 }
 
 // eventuele verbetering : wachten op elkaar met verhogen van setpoint zodat de wielen meer gelijktijdig rijden
@@ -194,7 +206,7 @@ void* _DriveStraightDistance(void* args)
     if(totalangle > 0)
     {
         // forward
-        while(curangle < totalangle)
+        while(curangle < totalangle && !_cancelDriving)
         {
             curangle += rotspeed;
             LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
@@ -205,7 +217,7 @@ void* _DriveStraightDistance(void* args)
     else if(totalangle < 0)
     {
         // backward
-        while(curangle > totalangle)
+        while(curangle > totalangle && !_cancelDriving)
         {
             curangle -= rotspeed;
             LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
@@ -213,6 +225,8 @@ void* _DriveStraightDistance(void* args)
             TimeStep(0);
         }
     }
+
+    _driveThreadRunning = false;
 
     return NULL;
 }
@@ -227,6 +241,8 @@ int DriveRotateRWheel(float Angle,float Speed)
 {
     if(!_driveThreadRunning)
     {
+        pthread_mutex_lock(&_driveThreadLock);
+
         _Angle = Angle;
         _Speed = Speed;
 
@@ -234,15 +250,19 @@ int DriveRotateRWheel(float Angle,float Speed)
         {
             printf("Error while creating drive thread!\n");
 
-            return -2;
+            pthread_mutex_unlock(&_driveThreadLock);
+
+            return 2;
         }
 
         _driveThreadRunning = true;
 
+        pthread_mutex_unlock(&_driveThreadLock);
+
         return 0;
     }
 
-    return -1;
+    return 1;
 }
 
 void* _DriveRotateRWheel(void* args)
@@ -274,7 +294,7 @@ void* _DriveRotateRWheel(void* args)
     if(totalangle > 0)
     {
         // forward
-        while(curangle < totalangle)
+        while(curangle < totalangle && !_cancelDriving)
         {
             curangle += rotspeed;
             LegoMotorPIDControl(&LegoMotor,MOTOR_R, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
@@ -284,13 +304,15 @@ void* _DriveRotateRWheel(void* args)
     else if(totalangle < 0)
     {
         // backward
-        while(curangle > totalangle)
+        while(curangle > totalangle && !_cancelDriving)
         {
             curangle -= rotspeed;
             LegoMotorPIDControl(&LegoMotor,MOTOR_R, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
             TimeStep(0);
         }
     }
+
+    _driveThreadRunning = false;
 
     return NULL;
 }
@@ -305,6 +327,8 @@ int DriveRotateLWheel(float Angle, float Speed)
 {
     if(!_driveThreadRunning)
     {
+        pthread_mutex_lock(&_driveThreadLock);
+
         _Angle = Angle;
         _Speed = Speed;
 
@@ -312,15 +336,19 @@ int DriveRotateLWheel(float Angle, float Speed)
         {
             printf("Error while creating drive thread!\n");
 
-            return -2;
+            pthread_mutex_unlock(&_driveThreadLock);
+
+            return 2;
         }
 
         _driveThreadRunning = true;
 
+        pthread_mutex_unlock(&_driveThreadLock);
+
         return 0;
     }
 
-    return -1;
+    return 1;
 }
 
 void* _DriveRotateLWheel(void* args)
@@ -352,7 +380,7 @@ void* _DriveRotateLWheel(void* args)
     if(totalangle > 0)
     {
         // forward
-        while(curangle < totalangle)
+        while(curangle < totalangle && !_cancelDriving)
         {
             curangle += rotspeed;
             LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
@@ -362,13 +390,15 @@ void* _DriveRotateLWheel(void* args)
     else if(totalangle < 0)
     {
         // backward
-        while(curangle > totalangle)
+        while(curangle > totalangle && !_cancelDriving)
         {
             curangle -= rotspeed;
             LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
             TimeStep(0);
         }
     }
+
+    _driveThreadRunning = false;
 
     return NULL;
 }
@@ -383,6 +413,8 @@ int DriveRotateCenter(float Angle, float Speed)
 {
     if(!_driveThreadRunning)
     {
+        pthread_mutex_lock(&_driveThreadLock);
+
         _Angle = Angle;
         _Speed = Speed;
 
@@ -390,15 +422,19 @@ int DriveRotateCenter(float Angle, float Speed)
         {
             printf("Error while creating drive thread!\n");
 
-            return -2;
+            pthread_mutex_unlock(&_driveThreadLock);
+
+            return 2;
         }
 
         _driveThreadRunning = true;
 
+        pthread_mutex_unlock(&_driveThreadLock);
+
         return 0;
     }
 
-    return -1;
+    return 1;
 }
 
 void* _DriveRotateCenter(void* args)
@@ -429,7 +465,7 @@ void* _DriveRotateCenter(void* args)
 
     if(totalangle > 0)
     {
-        while(curangle < totalangle)
+        while(curangle < totalangle && !_cancelDriving)
         {
             curangle += rotspeed;
             LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle, KP, KD, KI, IMAX);
@@ -439,7 +475,7 @@ void* _DriveRotateCenter(void* args)
     }
     else if(totalangle < 0)
     {
-        while(curangle > totalangle)
+        while(curangle > totalangle && !_cancelDriving)
         {
             curangle -= rotspeed;
             LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle, KP, KD, KI, IMAX);
@@ -447,6 +483,8 @@ void* _DriveRotateCenter(void* args)
             TimeStep(0);
         }
     }
+
+    _driveThreadRunning = false;
 
     return NULL;
 }
@@ -489,6 +527,7 @@ int calibrate()
     }
     iLcal = somIL/300;
     iRcal = somIR/300;
+
     return som/300;
 }
 
@@ -502,6 +541,8 @@ int DriveLineFollowDistance(int Distance, float Speed)
 {
     if(!_driveThreadRunning)
     {
+        pthread_mutex_lock(&_driveThreadLock);
+
         _Distance = Distance;
         _Speed = Speed;
 
@@ -509,15 +550,19 @@ int DriveLineFollowDistance(int Distance, float Speed)
         {
             printf("Error while creating drive thread!\n");
 
-            return -2;
+            pthread_mutex_unlock(&_driveThreadLock);
+
+            return 2;
         }
 
         _driveThreadRunning = true;
 
+        pthread_mutex_unlock(&_driveThreadLock);
+
         return 0;
     }
 
-    return -1;
+    return 1;
 }
 
 void* _DriveLineFollowDistance(void* args)
@@ -559,7 +604,7 @@ void* _DriveLineFollowDistance(void* args)
     TimeStepInit(10000);
 
     // while distance, nu negeren
-    while(totaldist < _Distance)
+    while(totaldist < _Distance && !_cancelDriving)
     {
         // Twee aparte angles ( eentje per wiel )
         LegoSensorGetLSensorData(&LegoSensor, SENSOR_L, &iL);
@@ -612,6 +657,8 @@ void* _DriveLineFollowDistance(void* args)
         totaldist = (nextL+nextR)*MMPD /2;
     }
 
+    _driveThreadRunning = false;
+
     return NULL;
 }
 
@@ -624,21 +671,27 @@ int DriveLineFollow(float Speed)
 {
     if(!_driveThreadRunning)
     {
+        pthread_mutex_lock(&_driveThreadLock);
+
         _Speed = Speed;
 
         if(pthread_create(&driveThread, NULL, _DriveLineFollow, NULL) < 0)
         {
             printf("Error while creating drive thread!\n");
 
-            return -2;
+            pthread_mutex_unlock(&_driveThreadLock);
+
+            return 2;
         }
 
         _driveThreadRunning = true;
 
+        pthread_mutex_unlock(&_driveThreadLock);
+
         return 0;
     }
 
-    return -1;
+    return 1;
 }
 
 void* _DriveLineFollow(void* args)
@@ -679,7 +732,7 @@ void* _DriveLineFollow(void* args)
     TimeStepInit(10000);
 
     // while distance, nu negeren
-    while(stop == 0)
+    while(stop == 0 && !_cancelDriving)
     {
         // Twee aparte angles ( eentje per wiel )
         LegoSensorGetLSensorData(&LegoSensor, SENSOR_L, &iL);
@@ -735,6 +788,8 @@ void* _DriveLineFollow(void* args)
             stop = 1;
         }
     }
+
+    _driveThreadRunning = false;
 
     return NULL;
 }

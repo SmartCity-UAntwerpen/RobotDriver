@@ -1,6 +1,6 @@
 #include "msgqueue.h"
 
-pthread_mutex_t queueLock;
+pthread_mutex_t _queueLock;
 
 struct msg *queuePointer;
 
@@ -63,7 +63,7 @@ void* _processMessage(void* args)
             WaitForDriving();
         }
 
-        pthread_mutex_lock(&queueLock);
+        pthread_mutex_lock(&_queueLock);
 
         if(queuePointer != NULL && queueActiveFlag)
         {
@@ -73,7 +73,7 @@ void* _processMessage(void* args)
             queuePointer = queuePointer->Next;
         }
 
-        pthread_mutex_unlock(&queueLock);
+        pthread_mutex_unlock(&_queueLock);
 
         if(msgPointer != NULL)
         {
@@ -112,7 +112,7 @@ int flushQueue(void)
 {
     struct msg *msgPointer;
 
-    pthread_mutex_lock(&queueLock);
+    pthread_mutex_lock(&_queueLock);
 
     while(queuePointer != NULL)
     {
@@ -126,7 +126,7 @@ int flushQueue(void)
         free(msgPointer);
     }
 
-    pthread_mutex_unlock(&queueLock);
+    pthread_mutex_unlock(&_queueLock);
 
     return 0;
 }
@@ -135,7 +135,7 @@ int addMsg(struct msg* message)
 {
     struct msg *msgPointer;
 
-    pthread_mutex_lock(&queueLock);
+    pthread_mutex_lock(&_queueLock);
 
     //Check if queue is empty
     if(queuePointer == NULL)
@@ -155,7 +155,7 @@ int addMsg(struct msg* message)
         msgPointer->Next = message;
     }
 
-    pthread_mutex_unlock(&queueLock);
+    pthread_mutex_unlock(&_queueLock);
 
     return 0;
 }

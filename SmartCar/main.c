@@ -23,6 +23,7 @@ void* AbortHandler(void *arg)
 {
     uint8 val;
     int res;
+
     while(1)
     {
         _delay_ms(100);
@@ -42,24 +43,22 @@ void* AbortHandler(void *arg)
             printf("2\n");
             pthread_cancel(dispatchThread); //Now kill the message queue thread
             printf("3\n");
-            if(MasterThread!=CurThread) pthread_cancel(MasterThread); //Now kill the master thread in case the abort button has been pressed
-            printf("4\n");
             pthread_cancel(driveThread);  //Now kill the drive thread
-            printf("5\n");
+            if(MasterThread!=CurThread) pthread_cancel(MasterThread); //Now kill the master thread in case the abort button has been pressed
             sem_post(&RS485Client.Busy); //And release control to the termination calls below
             printf("6\n");
             res=LegoMotorSetup(&LegoMotor,1,0,0);
-            if (res>0) printf("Abort handler: LegoMotorSetup() CH1 fail.\n");
+            if(res>0) printf("Abort handler: LegoMotorSetup() CH1 fail.\n");
             res=LegoMotorSetup(&LegoMotor,2,0,0);
-            if (res>0) printf("Abort handler: LegoMotorSetup() CH2 fail.\n");
+            if(res>0) printf("Abort handler: LegoMotorSetup() CH2 fail.\n");
             res=LegoMotorSetup(&LegoMotor,3,0,0);
-            if (res>0) printf("Abort handler: LegoMotorSetup() CH3 fail.\n");
+            if(res>0) printf("Abort handler: LegoMotorSetup() CH3 fail.\n");
             res=LegoMotorDirectControl(&LegoMotor,1,0);
-            if (res>0) printf("Abort handler: LegoMotorDirectControl() CH1 fail.\n");
+            if(res>0) printf("Abort handler: LegoMotorDirectControl() CH1 fail.\n");
             res=LegoMotorDirectControl(&LegoMotor,2,0);
-            if (res>0) printf("Abort handler: LegoMotorDirectControl() CH2 fail.\n");
+            if(res>0) printf("Abort handler: LegoMotorDirectControl() CH2 fail.\n");
             res=LegoMotorDirectControl(&LegoMotor,3,0);
-            if (res>0) printf("Abort handler: LegoMotorDirectControl() CH3 fail.\n");
+            if(res>0) printf("Abort handler: LegoMotorDirectControl() CH3 fail.\n");
 
             printf("ABORT complete\n");
             espeak("Safety abort.");
