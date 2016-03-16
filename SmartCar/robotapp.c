@@ -64,6 +64,7 @@ void RobotApp(int argc, char *argv[])
         i++;
     }
 
+/*
     WaitForDriving();
     sleep(1);
     flushQueue();
@@ -79,9 +80,16 @@ void RobotApp(int argc, char *argv[])
     //addMsg(newMsg);
 
     //printf("Message added: DRIVE_STRAIGHT\n");
-
+*/
 while(1)
 {
+    sleep(2);
+
+    pauseDriving();
+
+    sleep(1);
+
+    continueDriving();
 }
 
 /*

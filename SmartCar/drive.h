@@ -19,6 +19,10 @@ int DriveInit(void);
 
 int AbortDriving(void);
 
+int pauseDriving(void);
+
+int continueDriving(void);
+
 int WaitForDriving(void);
 
 bool IsDriving(void);
@@ -75,5 +79,7 @@ void* _DriveLineFollow(void* args);
  * \return The correction factor to take into account.
 */
 int calibrate(void);
+
+void _pauseDrivingLoop(float* lMotorAngle, float* rMotorAngle);
 
 #endif

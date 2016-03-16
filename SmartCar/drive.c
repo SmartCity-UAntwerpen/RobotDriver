@@ -21,11 +21,12 @@ int cal;                            // calibration difference value
 uint16 iLcal;                       // left sensor calibrated value on drive stroke
 uint16 iRcal;                       // right sensor calibrated value on drive stroke
 
-float _Distance;
-float _Angle;
-float _Speed;
-bool _driveThreadRunning = false;
-bool _cancelDriving = false;
+static float _Distance;
+static float _Angle;
+static float _Speed;
+static bool _driveThreadRunning = false;
+static bool _cancelDriving = false;
+static bool _pauseDriving = false;
 
 /**
  * \brief Initialize drive system
@@ -96,8 +97,33 @@ int AbortDriving(void)
 
         _driveThreadRunning = false;
         _cancelDriving = false;
+        _pauseDriving = false;
 
         pthread_mutex_unlock(&_driveThreadLock);
+
+        return 0;
+    }
+
+    return 1;
+}
+
+int pauseDriving(void)
+{
+    if(_driveThreadRunning && !_pauseDriving)
+    {
+        _pauseDriving = true;
+
+        return 0;
+    }
+
+    return 1;
+}
+
+int continueDriving(void)
+{
+    if(_driveThreadRunning && _pauseDriving)
+    {
+        _pauseDriving = false;
 
         return 0;
     }
@@ -191,6 +217,7 @@ void* _DriveStraightDistance(void* args)
     float totalangle = _Distance/MMPD;               // total turning angle for the wheels
     float rotspeed = (fabs(_Speed)/100)/MMPD;        // Speed /s --> /10ms is dividing by 100  == [degrees / 10 ms]
     float curangle = 0;
+    float curangleHalfDeg = 0;
 
     // put in PID mode
     LegoMotorSetup(&LegoMotor, MOTOR_R, 1, 1);
@@ -208,10 +235,20 @@ void* _DriveStraightDistance(void* args)
         // forward
         while(curangle < totalangle && !_cancelDriving)
         {
-            curangle += rotspeed;
-            LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
-            LegoMotorPIDControl(&LegoMotor,MOTOR_R, curangle*2, KP, KD, KI, IMAX);  // KI and IMAX are 0
-            TimeStep(0);
+            //Pause drive system if pause flag is high
+            if(_pauseDriving)
+            {
+                curangleHalfDeg = curangle * 2;
+
+                _pauseDrivingLoop(&curangleHalfDeg, &curangleHalfDeg);
+            }
+            else
+            {
+                curangle += rotspeed;
+                LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
+                LegoMotorPIDControl(&LegoMotor,MOTOR_R, curangle*2, KP, KD, KI, IMAX);  // KI and IMAX are 0
+                TimeStep(0);
+            }
         }
     }
     else if(totalangle < 0)
@@ -219,10 +256,20 @@ void* _DriveStraightDistance(void* args)
         // backward
         while(curangle > totalangle && !_cancelDriving)
         {
-            curangle -= rotspeed;
-            LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
-            LegoMotorPIDControl(&LegoMotor,MOTOR_R, curangle*2, KP, KD, KI, IMAX);  // KI and IMAX are 0
-            TimeStep(0);
+            //Pause drive system if pause flag is high
+            if(_pauseDriving)
+            {
+                curangleHalfDeg = curangle * 2;
+
+                _pauseDrivingLoop(&curangleHalfDeg, &curangleHalfDeg);
+            }
+            else
+            {
+                curangle -= rotspeed;
+                LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
+                LegoMotorPIDControl(&LegoMotor,MOTOR_R, curangle*2, KP, KD, KI, IMAX);  // KI and IMAX are 0
+                TimeStep(0);
+            }
         }
     }
 
@@ -279,6 +326,7 @@ void* _DriveRotateRWheel(void* args)
     float rotspeed = (fabs(_Speed)/100)/MMPD;    // Speed /s --> /10ms is dividing by 100  == [degrees / 10 ms]
     float totalangle = _Angle*MMRD/MMPD;         // total turning distance for wheel
     float curangle = 0;
+    float curangleHalfDeg = 0;
 
     // enable R/disable L
     LegoMotorSetup(&LegoMotor,MOTOR_R,1,1);
@@ -296,9 +344,19 @@ void* _DriveRotateRWheel(void* args)
         // forward
         while(curangle < totalangle && !_cancelDriving)
         {
-            curangle += rotspeed;
-            LegoMotorPIDControl(&LegoMotor,MOTOR_R, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
-            TimeStep(0);
+            //Pause drive system if pause flag is high
+            if(_pauseDriving)
+            {
+                curangleHalfDeg = curangle * 2;
+
+                _pauseDrivingLoop(&curangleHalfDeg, &curangleHalfDeg);
+            }
+            else
+            {
+                curangle += rotspeed;
+                LegoMotorPIDControl(&LegoMotor,MOTOR_R, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
+                TimeStep(0);
+            }
         }
     }
     else if(totalangle < 0)
@@ -306,9 +364,19 @@ void* _DriveRotateRWheel(void* args)
         // backward
         while(curangle > totalangle && !_cancelDriving)
         {
-            curangle -= rotspeed;
-            LegoMotorPIDControl(&LegoMotor,MOTOR_R, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
-            TimeStep(0);
+            //Pause drive system if pause flag is high
+            if(_pauseDriving)
+            {
+                curangleHalfDeg = curangle * 2;
+
+                _pauseDrivingLoop(&curangleHalfDeg, &curangleHalfDeg);
+            }
+            else
+            {
+                curangle -= rotspeed;
+                LegoMotorPIDControl(&LegoMotor,MOTOR_R, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
+                TimeStep(0);
+            }
         }
     }
 
@@ -365,6 +433,7 @@ void* _DriveRotateLWheel(void* args)
     float rotspeed = (fabs(_Speed)/100)/MMPD;    // Speed /s --> /10ms is dividing by 100  == [degrees / 10 ms]
     float totalangle = _Angle*MMRD/MMPD;         // total turning distance for wheel
     float curangle = 0;
+    float curangleHalfDeg = 0;
 
     // enable L/disable R
     LegoMotorSetup(&LegoMotor,MOTOR_L,1,1);
@@ -382,9 +451,19 @@ void* _DriveRotateLWheel(void* args)
         // forward
         while(curangle < totalangle && !_cancelDriving)
         {
-            curangle += rotspeed;
-            LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
-            TimeStep(0);
+            //Pause drive system if pause flag is high
+            if(_pauseDriving)
+            {
+                curangleHalfDeg = curangle * 2;
+
+                _pauseDrivingLoop(&curangleHalfDeg, &curangleHalfDeg);
+            }
+            else
+            {
+                curangle += rotspeed;
+                LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
+                TimeStep(0);
+            }
         }
     }
     else if(totalangle < 0)
@@ -392,9 +471,19 @@ void* _DriveRotateLWheel(void* args)
         // backward
         while(curangle > totalangle && !_cancelDriving)
         {
-            curangle -= rotspeed;
-            LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
-            TimeStep(0);
+            //Pause drive system if pause flag is high
+            if(_pauseDriving)
+            {
+                curangleHalfDeg = curangle * 2;
+
+                _pauseDrivingLoop(&curangleHalfDeg, &curangleHalfDeg);
+            }
+            else
+            {
+                curangle -= rotspeed;
+                LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
+                TimeStep(0);
+            }
         }
     }
 
@@ -451,6 +540,7 @@ void* _DriveRotateCenter(void* args)
     float rotspeed = (fabs(_Speed)/100)/MMPD;    // Speed /s --> /10ms is dividing by 100  == [degrees / 10 ms]
     float totalangle = _Angle*MMRD/MMPD;         // total turning distance for wheel
     float curangle = 0;
+    float complementaryAngle = 0;
 
     // enable R and L motor
     LegoMotorSetup(&LegoMotor,MOTOR_L,1,1);
@@ -467,20 +557,40 @@ void* _DriveRotateCenter(void* args)
     {
         while(curangle < totalangle && !_cancelDriving)
         {
-            curangle += rotspeed;
-            LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle, KP, KD, KI, IMAX);
-            LegoMotorPIDControl(&LegoMotor,MOTOR_R, -curangle, KP, KD, KI, IMAX);
-            TimeStep(0);
+            //Pause drive system if pause flag is high
+            if(_pauseDriving)
+            {
+                complementaryAngle = -curangle;
+
+                _pauseDrivingLoop(&curangle, &complementaryAngle);
+            }
+            else
+            {
+                curangle += rotspeed;
+                LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle, KP, KD, KI, IMAX);
+                LegoMotorPIDControl(&LegoMotor,MOTOR_R, -curangle, KP, KD, KI, IMAX);
+                TimeStep(0);
+            }
         }
     }
     else if(totalangle < 0)
     {
         while(curangle > totalangle && !_cancelDriving)
         {
-            curangle -= rotspeed;
-            LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle, KP, KD, KI, IMAX);
-            LegoMotorPIDControl(&LegoMotor,MOTOR_R, -curangle, KP, KD, KI, IMAX);
-            TimeStep(0);
+            //Pause drive system if pause flag is high
+            if(_pauseDriving)
+            {
+                complementaryAngle = -curangle;
+
+                _pauseDrivingLoop(&curangle, &complementaryAngle);
+            }
+            else
+            {
+                curangle -= rotspeed;
+                LegoMotorPIDControl(&LegoMotor,MOTOR_L, curangle, KP, KD, KI, IMAX);
+                LegoMotorPIDControl(&LegoMotor,MOTOR_R, -curangle, KP, KD, KI, IMAX);
+                TimeStep(0);
+            }
         }
     }
 
@@ -598,6 +708,8 @@ void* _DriveLineFollowDistance(void* args)
     float incR = 0;
     float nextL = 0;
     float nextR = 0;
+    float nextLHalfDeg = 0;
+    float nextRHalfDeg = 0;
     float rotSpeed = _Speed/100/MMPD;
 
     // Setup timestep module with time step of 10ms
@@ -647,14 +759,25 @@ void* _DriveLineFollowDistance(void* args)
             incR = rotSpeed;
         }
 
-        nextL += incL;
-        nextR += incR;
+        //Pause drive system if pause flag is high
+        if(_pauseDriving)
+        {
+            nextLHalfDeg = nextL * 2;
+            nextRHalfDeg = nextR * 2;
 
-        LegoMotorPIDControl(&LegoMotor,MOTOR_L, (nextL)*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
-        LegoMotorPIDControl(&LegoMotor,MOTOR_R, (nextR)*2, KP, KD, KI, IMAX);  // KI and IMAX are 0
-        TimeStep(0);
+            _pauseDrivingLoop(&nextLHalfDeg, &nextRHalfDeg);
+        }
+        else
+        {
+            nextL += incL;
+            nextR += incR;
 
-        totaldist = (nextL+nextR)*MMPD /2;
+            LegoMotorPIDControl(&LegoMotor,MOTOR_L, (nextL)*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
+            LegoMotorPIDControl(&LegoMotor,MOTOR_R, (nextR)*2, KP, KD, KI, IMAX);  // KI and IMAX are 0
+            TimeStep(0);
+
+            totaldist = (nextL+nextR)*MMPD /2;
+        }
     }
 
     _driveThreadRunning = false;
@@ -725,6 +848,8 @@ void* _DriveLineFollow(void* args)
     float incR = 0;
     float nextL = 0;
     float nextR = 0;
+    float nextLHalfDeg = 0;
+    float nextRHalfDeg = 0;
     float rotSpeed = _Speed/100/MMPD;
     int stop = 0;
 
@@ -775,12 +900,23 @@ void* _DriveLineFollow(void* args)
             incR = rotSpeed;
         }
 
-        nextL += incL;
-        nextR += incR;
+        //Pause drive system if pause flag is hight
+        if(_pauseDriving)
+        {
+            nextLHalfDeg = nextL * 2;
+            nextRHalfDeg = nextR * 2;
 
-        LegoMotorPIDControl(&LegoMotor,MOTOR_L, (nextL)*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
-        LegoMotorPIDControl(&LegoMotor,MOTOR_R, (nextR)*2, KP, KD, KI, IMAX);  // KI and IMAX are 0
-        TimeStep(0);
+            _pauseDrivingLoop(&nextLHalfDeg, &nextRHalfDeg);
+        }
+        else
+        {
+            nextL += incL;
+            nextR += incR;
+
+            LegoMotorPIDControl(&LegoMotor,MOTOR_L, (nextL)*2, KP, KD, KI, IMAX);  // *2 because PID controller works with half degrees
+            LegoMotorPIDControl(&LegoMotor,MOTOR_R, (nextR)*2, KP, KD, KI, IMAX);  // KI and IMAX are 0
+            TimeStep(0);
+        }
 
         // 8% daling in intensiteit om wit te detecteren
         if((iL < (iLcal*0.92)) && (iR < (iRcal*0.92)))
@@ -792,4 +928,22 @@ void* _DriveLineFollow(void* args)
     _driveThreadRunning = false;
 
     return NULL;
+}
+
+void _pauseDrivingLoop(float* lMotorAngle, float* rMotorAngle)
+{
+    while(1)
+    {
+        if(_pauseDriving && !_cancelDriving)
+        {
+            //Turn motorspeed to 0
+            LegoMotorPIDControl(&LegoMotor,MOTOR_L, *lMotorAngle, KP, KD, KI, IMAX);
+            LegoMotorPIDControl(&LegoMotor,MOTOR_R, *rMotorAngle, KP, KD, KI, IMAX);
+        }
+        else
+        {
+            //Exit loop
+            return;
+        }
+    }
 }
