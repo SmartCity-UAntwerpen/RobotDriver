@@ -285,25 +285,3 @@ int GetRelDirection(int PrevAbsDir, int NextAbsDir)
     //Invalid direction
     return -1;
 }
-
-void InitMap(NodeStruct* Map, int map, int n,  int o, int z, int w, int nn, int oo, int zz, int ww)
-{
-	Map[map].Neighbours[0] = n;
-	Map[map].Neighbours[1] = o;
-	Map[map].Neighbours[2] = z;
-	Map[map].Neighbours[3] = w;
-
-	Map[map].Distance[0] = nn;
-	Map[map].Distance[1] = oo;
-	Map[map].Distance[2] = zz;
-	Map[map].Distance[3] = ww;
-
-	Map[map].Visited = 0;
-
-	Map[map].DV = 120;
-	Map[map].Previous = -1;
-	Map[map].Next = -1;
-	Map[map].NextAbsDir = -1;
-	Map[map].NextRelDir = -1;
-}
-

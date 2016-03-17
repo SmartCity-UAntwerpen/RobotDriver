@@ -4,12 +4,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define NON -1
+#define INF 10000
 typedef struct
 {
 	int Neighbours[4];		//Index of neighbouring nodes, in order N,E,S,W   -1= no connection
 	int Distance[4];		//Distance to neighbouring nodes, in order N,E,S,W
+	char RFID[21];          //RFID-code of node
 
 	//Solver variables
 	char Visited;			//flag: visited or not
@@ -63,20 +66,5 @@ int TraceRoute(NodeStruct* Map, int Finish);
  * \return Relative direction to the next node in respect to the previous node (0-3: N,E,S,W)
  */
 int GetRelDirection(int PrevAbsDir, int NextAbsDir);
-
-/**
- * \brief Add a new node to the NodeStruct for initialisation of the map for the Dijkstra algorithm
- * \param Map :Array of nodes describing the map
- * \param map :Index for the new node to be initialized
- * \param n :Index of the neighbour in the north (-1: no neighbour)
- * \param o :Index of the neighbour in the east (-1: no neighbour)
- * \param z :Index of the neighbour in the south (-1: no neighbour)
- * \param w :Index of the neighbour in the west (-1: no neighbour)
- * \param nn :Cost of the route to the north
- * \param oo :Cost of the route to the east
- * \param zz :Cost of the route to the south
- * \param ww :Cost of the route to the west
- */
-void InitMap(NodeStruct* Map, int map, int n,  int o, int z, int w, int nn, int oo, int zz, int ww);
 
 #endif

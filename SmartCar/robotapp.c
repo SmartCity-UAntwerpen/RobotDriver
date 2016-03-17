@@ -6,7 +6,7 @@ void RobotApp(int argc, char *argv[])
 {
     struct msg *newMsg;
 
-    setSpeakerMute(false);
+    setSpeakerMute(true);
 
     //Read arguments
     /*if(argc < 1)
@@ -20,7 +20,7 @@ void RobotApp(int argc, char *argv[])
     DriveInit();
 
     //Initialize map
-    //initializeMap();
+    parseMapFile("MAP.dmap");
 
     printf("Program up and running...\n");
     espeak("Initialisation complete.");
@@ -35,6 +35,16 @@ void RobotApp(int argc, char *argv[])
     printf("WARNING: Loading drive commands\n");
     espeak("WARNING! Stand back!");
 
+    Dijkstra(getRoadMap(), getRoadMapSize(), 13, 7);
+
+    printf("DIJKSTRA FINISHED\n");
+
+    Travel(getRoadMap(), getRoadMapSize(), 13, 7, 70);
+
+    while(1);
+
+
+/*
     int i = 0;
 
     while(i < 2)
@@ -80,7 +90,7 @@ void RobotApp(int argc, char *argv[])
     //addMsg(newMsg);
 
     //printf("Message added: DRIVE_STRAIGHT\n");
-*/
+
 while(1)
 {
     sleep(2);

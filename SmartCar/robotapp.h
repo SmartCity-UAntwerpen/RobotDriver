@@ -17,7 +17,9 @@
 #include "speaker.h"
 #include "drive.h"
 #include "msgqueue.h"
-
+#include "travel.h"
+#include "dijkstra.h"
+#include "map.h"
 
 #define RS485_LEGO_MOTOR_ADDR 1
 #define RS485_LEGO_SENSOR_ADDR 2

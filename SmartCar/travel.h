@@ -4,6 +4,7 @@
 #include "robotapp.h"
 #include "dijkstra.h"
 #include "drive.h"
+#include "msgqueue.h"
 
 /**
  * \brief Travel through an array of nodes, precalculated by a path planning algorithm
