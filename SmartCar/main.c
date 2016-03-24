@@ -27,7 +27,8 @@ void* AbortHandler(void *arg)
     while(1)
     {
         _delay_ms(100);
-        val = GPIOGetIn(24);
+        //val = GPIOGetIn(24);
+        val = 1;
         if(!val || AbortRequest)
         {
             pthread_t CurThread = pthread_self();
@@ -41,12 +42,13 @@ void* AbortHandler(void *arg)
             printf("1\n");
             sem_wait(&RS485Client.Busy); //Block RS485 system
             printf("2\n");
-            pthread_cancel(dispatchThread); //Now kill the message queue thread
+            if(driveQueue != NULL) pthread_cancel(driveQueue->queueThread); //Now kill the drive message queue thread
             printf("3\n");
             pthread_cancel(driveThread);  //Now kill the drive thread
+            printf("4\n");
             if(MasterThread!=CurThread) pthread_cancel(MasterThread); //Now kill the master thread in case the abort button has been pressed
             sem_post(&RS485Client.Busy); //And release control to the termination calls below
-            printf("6\n");
+            printf("5\n");
             res=LegoMotorSetup(&LegoMotor,1,0,0);
             if(res>0) printf("Abort handler: LegoMotorSetup() CH1 fail.\n");
             res=LegoMotorSetup(&LegoMotor,2,0,0);
@@ -93,6 +95,10 @@ int main(int argc, char *argv[])
 
     AnsiCls();
 
+AnsiSetColor(ANSI_ATTR_BLINK,ANSI_BLACK,ANSI_RED);
+printf("ABORT BUTTON HARD CODED TURNED OFF! LINE 30\n");
+
+    AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
     printBanner();
 
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_GREEN);

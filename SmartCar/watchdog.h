@@ -7,6 +7,11 @@
 #include <pthread.h>
 #include "TimeService.h"
 
+#ifdef __cplusplus	//Check if the compiler is C++
+	extern "C"	//Code needs to be handled as C-style code
+	{
+#endif
+
 #define watchdogPackageNeededMS 250
 
 int startWatchdog(void);
@@ -27,5 +32,9 @@ void setWatchdogTimeOutCallback(WatchdogTimeOutCallback_t callback);
 int watchdogRunning(void);
 
 void* watchingThread(void* args);
+
+#ifdef __cplusplus		//Check if the compiler is C++
+	}		//End the extern "C" bracket
+#endif
 
 #endif

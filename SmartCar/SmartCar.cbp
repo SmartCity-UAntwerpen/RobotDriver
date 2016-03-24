@@ -58,12 +58,13 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../lib/TimeSupport.h" />
-		<Unit filename="../lib/drive.h" />
 		<Unit filename="../lib/timestep.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../lib/timestep.h" />
 		<Unit filename="Makefile" />
+		<Unit filename="camera.cpp" />
+		<Unit filename="camera.h" />
 		<Unit filename="commInterface.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -75,6 +76,11 @@
 		<Unit filename="drive.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="drive.h" />
+		<Unit filename="drivequeue.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="drivequeue.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -87,14 +93,30 @@
 		</Unit>
 		<Unit filename="msgqueue.h" />
 		<Unit filename="project.h" />
-		<Unit filename="robotapp.c">
+		<Unit filename="restInterface.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="restInterface.h" />
+		<Unit filename="robotapp.cpp" />
 		<Unit filename="robotapp.h" />
 		<Unit filename="speaker.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="speaker.h" />
+		<Unit filename="tagreader.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="tagreader.h" />
+		<Unit filename="trafficlightdetect.cpp" />
+		<Unit filename="trafficlightdetect.h" />
+		<Unit filename="travel.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="travel.h" />
+		<Unit filename="watchdog.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="watchdog.h" />
 		<Extensions>
 			<code_completion>
 				<search_path add="/home/lubuntu/minimod/Libs" />

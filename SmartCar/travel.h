@@ -6,6 +6,11 @@
 #include "drive.h"
 #include "msgqueue.h"
 
+#ifdef __cplusplus	//Check if the compiler is C++
+	extern "C"	//Code needs to be handled as C-style code
+	{
+#endif
+
 /**
  * \brief Travel through an array of nodes, precalculated by a path planning algorithm
  * \param Map :Pointer to node array
@@ -18,5 +23,9 @@
  * 1:Error \n
 */
 int Travel(NodeStruct *Map,int MapSize,int Start,int Finish,float Speed);
+
+#ifdef __cplusplus		//Check if the compiler is C++
+	}		//End the extern "C" bracket
+#endif
 
 #endif

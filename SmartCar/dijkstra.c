@@ -2,6 +2,12 @@
 
 int Dijkstra(NodeStruct *Map,int MapSize,int Start,int Finish)
 {
+    if(Map == NULL)
+    {
+        //Empty map
+        return 0;
+    }
+
     //Start Dijkstra algorithm
     VisitNode(Map, MapSize, Start, Finish);
 

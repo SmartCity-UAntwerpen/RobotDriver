@@ -1,26 +1,19 @@
 #include "msgqueue.h"
 
-pthread_mutex_t _queueLock;
-
-struct msg *queuePointer;
-
-bool queueActiveFlag = false;
-bool _dispatchThreadrunning = false;
-
-int runQueueDispatcher(void)
+int startQueue(struct msgqueue_t* msgqueue)
 {
-    queueActiveFlag = true;
+    msgqueue->queueActiveFlag = true;
 
-    if(!_dispatchThreadrunning)
+    if(!msgqueue->queueThreadRunning)
     {
-        if(pthread_create(&dispatchThread, NULL, _processMessage, NULL) < 0)
+        if(pthread_create(&msgqueue->queueThread, NULL, (void* (*)(void*))msgqueue->processMessage, NULL) < 0)
         {
             printf("Error while creating dispatch thread!\n");
 
             return -2;
         }
 
-        _dispatchThreadrunning = true;
+        msgqueue->queueThreadRunning = true;
 
         return 0;
     }
@@ -30,121 +23,55 @@ int runQueueDispatcher(void)
     }
 }
 
-int stopQueueDispatcher(void)
+int stopQueue(struct msgqueue_t* msgqueue)
 {
-    queueActiveFlag = false;
+    msgqueue->queueActiveFlag = false;
 
     //Wait for dispatch thread to finish
-    pthread_join(dispatchThread, NULL);
+    pthread_join(msgqueue->queueThread, NULL);
 
-    _dispatchThreadrunning = false;
+    msgqueue->queueThreadRunning = false;
 
     return 0;
 }
 
-bool msgQueueActive(void)
+int flushQueue(struct msgqueue_t* msgqueue)
 {
-    return _dispatchThreadrunning;
-}
+    struct msg_t *msgPointer;
 
-void* _processMessage(void* args)
-{
-    struct timespec time;
-    struct msg *msgPointer = NULL;
+    pthread_mutex_lock(&msgqueue->queueLock);
 
-    time.tv_sec = 0;
-    time.tv_nsec = 10000000;
-
-    while(queueActiveFlag)
-    {
-        if(IsDriving())
-        {
-            //Wait for drivethread to finish
-            WaitForDriving();
-        }
-
-        pthread_mutex_lock(&_queueLock);
-
-        if(queuePointer != NULL && queueActiveFlag)
-        {
-            msgPointer = queuePointer;
-
-            //Remove message from queue
-            queuePointer = queuePointer->Next;
-        }
-
-        pthread_mutex_unlock(&_queueLock);
-
-        if(msgPointer != NULL)
-        {
-            //Start next command
-            _startNextActivity(msgPointer);
-
-            //Free message
-            free(msgPointer);
-        }
-
-        msgPointer = NULL;
-
-        nanosleep(&time, NULL);
-    }
-
-    return NULL;
-}
-
-int _startNextActivity(struct msg* message)
-{
-    switch(message->id)
-    {
-        case DRIVE_STRAIGHT:
-            return DriveLineFollow(80);
-        case DRIVE_RIGHT:
-            return DriveRotateLWheel(90, 70);
-        case DRIVE_LEFT:
-            return DriveRotateRWheel(90, 70);
-        default:
-            printf("Command id: %d unknown!", message->id);
-            return -1;
-    }
-}
-
-int flushQueue(void)
-{
-    struct msg *msgPointer;
-
-    pthread_mutex_lock(&_queueLock);
-
-    while(queuePointer != NULL)
+    while(msgqueue->queuePointer != NULL)
     {
         //Set temparory pointer to first element
-        msgPointer = queuePointer;
+        msgPointer = msgqueue->queuePointer;
 
         //Switch front of queue to next element
-        queuePointer = queuePointer->Next;
+        msgqueue->queuePointer = msgqueue->queuePointer->Next;
 
         //Free msgPointer
         free(msgPointer);
     }
 
-    pthread_mutex_unlock(&_queueLock);
+    pthread_mutex_unlock(&msgqueue->queueLock);
 
     return 0;
 }
 
-int addMsg(struct msg* message)
+int addMsg(struct msgqueue_t* msgqueue, struct msg_t* message)
 {
-    struct msg *msgPointer;
+    struct msg_t *msgPointer;
 
-    pthread_mutex_lock(&_queueLock);
+    pthread_mutex_lock(&msgqueue->queueLock);
 
     //Check if queue is empty
-    if(queuePointer == NULL)
+    if(msgqueue->queuePointer == NULL)
     {
-        queuePointer = message;
+        msgqueue->queuePointer = message;
     }
     else
     {
-        msgPointer = queuePointer;
+        msgPointer = msgqueue->queuePointer;
 
         while(msgPointer->Next != NULL)
         {
@@ -155,7 +82,7 @@ int addMsg(struct msg* message)
         msgPointer->Next = message;
     }
 
-    pthread_mutex_unlock(&_queueLock);
+    pthread_mutex_unlock(&msgqueue->queueLock);
 
     return 0;
 }

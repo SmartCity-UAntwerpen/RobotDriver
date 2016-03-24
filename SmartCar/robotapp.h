@@ -17,9 +17,17 @@
 #include "speaker.h"
 #include "drive.h"
 #include "msgqueue.h"
+#include "drivequeue.h"
 #include "travel.h"
 #include "dijkstra.h"
 #include "map.h"
+
+#ifdef __cplusplus	//Check if the compiler is C++
+    #include "camera.h"
+
+	extern "C"	//Code needs to be handled as C-style code
+	{
+#endif
 
 #define RS485_LEGO_MOTOR_ADDR 1
 #define RS485_LEGO_SENSOR_ADDR 2
@@ -43,5 +51,8 @@ extern ImuStruct Imu;
 
 void RobotApp(int argc, char *argv[]);
 
+#ifdef __cplusplus		//Check if the compiler is C++
+	}		//End the extern "C" bracket
+#endif
 
 #endif

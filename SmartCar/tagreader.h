@@ -6,6 +6,11 @@
 #include <stdbool.h>
 #include "robotapp.h"
 
+#ifdef __cplusplus	//Check if the compiler is C++
+	extern "C"	//Code needs to be handled as C-style code
+	{
+#endif
+
 /**
  * \brief Scan for passive tag in range, return 7 byte UID
  * \param Data :Location to store tag UID. Buffer must be 21 bytes long at least. UID is stored as a NULL terminated string
@@ -41,5 +46,9 @@ int TagReaderWriteData(int BlockNumber, int DataLength, char* Data);
  * 3:Other error \n
 */
 int TagReaderReadData(int BlockNumber, int DataLength, char* Data);
+
+#ifdef __cplusplus		//Check if the compiler is C++
+	}		//End the extern "C" bracket
+#endif
 
 #endif

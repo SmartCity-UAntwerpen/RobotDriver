@@ -6,6 +6,11 @@
 #include <stdbool.h>
 #include <string.h>
 
+#ifdef __cplusplus	//Check if the compiler is C++
+	extern "C"	//Code needs to be handled as C-style code
+	{
+#endif
+
 #define NON -1
 #define INF 10000
 typedef struct
@@ -66,5 +71,9 @@ int TraceRoute(NodeStruct* Map, int Finish);
  * \return Relative direction to the next node in respect to the previous node (0-3: N,E,S,W)
  */
 int GetRelDirection(int PrevAbsDir, int NextAbsDir);
+
+#ifdef __cplusplus	//Check if the compiler is C++
+	}		//End the extern "C" bracket
+#endif
 
 #endif

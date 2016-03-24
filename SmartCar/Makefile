@@ -1,27 +1,37 @@
 CC=/home/lubuntu/rpi/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-gcc
+CCXX=/home/lubuntu/rpi/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-g++
 APP_BINARY=SmartCar
-REMOTE_SERVER=pi@robot11d
+#REMOTE_SERVER=pi@robot11d
+REMOTE_SERVER=pi@192.168.1.12
 REMOTE_PATH=/home/pi
-REMOTE_PASS='raspberry'
+#REMOTE_PASS='raspberry'
+REMOTE_PASS='thomas'
 ML=/home/lubuntu/minimod/Libs/
 ML_ROB=/home/lubuntu/robotica/lib/
+ML_RPI=/home/lubuntu/rpi-cp/
 LOGFILE='log.csv'
 
-CFLAGS += -g -DLINUX -Wall -I$(ML) -I$(ML_ROB) -I.
-LFLAGS += -lpthread -L$(ML) -lrt
+CFLAGS += -g -DLINUX -Wall -I$(ML) -I$(ML_ROB) -I. -I$(ML_RPI)usr/local/include
+LFLAGS += -lpthread -Wl,-unresolved-symbols=ignore-in-shared-libs,-rpath,$(ML_RPI)usr/local/lib,-rpath,$(ML_RPI)usr/local/arm-linux-gnueabihf -L$(ML) -L$(ML_RPI)usr/local/lib -lopencv_core -lopencv_features2d -lopencv_highgui -lrt -lopencv_imgproc -lopencv_photo -lopencv_ml -lopencv_imgcodecs -lopencv_video -lopencv_videoio
 
-OBJECTS=main.o robotapp.o $(ML_ROB)timestep.o $(ML_ROB)TimeSupport.o $(ML)lin-rpi-serlib.o $(ML)lin-rs485client.o $(ML)crc.o $(ML)rf-cc1101.o $(ML)lego-motor.o $(ML)lego-sensor.o $(ML)lin-delay.o $(ML)lin-gpio.o $(ML)lin-lego-motor-log.o $(ML)pwr-liion1a.o $(ML)ansi.o $(ML)imu.o msgqueue.o drive.o speaker.o
+OBJECTS=main.o robotapp.o $(ML_ROB)timestep.o $(ML_ROB)TimeSupport.o $(ML)lin-rpi-serlib.o $(ML)lin-rs485client.o $(ML)crc.o $(ML)rf-cc1101.o $(ML)lego-motor.o $(ML)lego-sensor.o $(ML)lin-delay.o $(ML)lin-gpio.o $(ML)lin-lego-motor-log.o $(ML)pwr-liion1a.o $(ML)ansi.o $(ML)imu.o travel.o map.o dijkstra.o drivequeue.o msgqueue.o drive.o trafficlightdetect.o camera.o speaker.o
 
 all: SmartCar
 Debug: SmartCar
 SmartCar: $(OBJECTS)
-	$(CC) $(CFLAGS) $(LFLAGS) $(OBJECTS) -o $(APP_BINARY)
+	$(CCXX) $(CFLAGS) $(LFLAGS) $(OBJECTS) -o $(APP_BINARY)
 
 -include $(OBJECTS:.o=.d)
 
+#Compile rule for C-code files
 %.o: %.c
 	$(CC) -c $(CFLAGS) $*.c -o $*.o
 	$(CC) -MM $(CFLAGS) $*.c > $*.d
+
+#Compile rule for C++-code files
+%.o: %.cpp
+	$(CCXX) -c $(CFLAGS) $*.cpp -o $*.o
+	$(CCXX) -MM $(CFLAGS) $*.cpp > $*.d
 
 cleanDebug: clean
 clean:

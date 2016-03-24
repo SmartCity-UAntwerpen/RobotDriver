@@ -4,7 +4,12 @@
 #include <string.h>
 #include "dijkstra.h"
 
-int parseMapFile(char* fileName);
+#ifdef __cplusplus	//Check if the compiler is C++
+	extern "C"	//Code needs to be handled as C-style code
+	{
+#endif
+
+int parseMapFile(char const* fileName);
 
 int clearRouteMap(NodeStruct* roadMap);
 
@@ -31,5 +36,9 @@ void InitMap(NodeStruct* Map, int map, int n, int o, int z, int w, int nn, int o
 NodeStruct* getRoadMap(void);
 
 int getRoadMapSize(void);
+
+#ifdef __cplusplus		//Check if the compiler is C++
+	}		//End the extern "C" bracket
+#endif
 
 #endif

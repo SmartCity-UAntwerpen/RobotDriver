@@ -5,19 +5,26 @@ int Travel(NodeStruct* Map, int MapSize, int Start, int Finish, float Speed)
     bool hasNext = true;
     int previousPoint = Start;
 
-    struct msg *driveMsg;
-    struct msg *turnMsg;
+    struct msg_t *driveMsg;
+    struct msg_t *turnMsg;
+
+    if(Map == NULL)
+    {
+        //Empty map
+        return 1;
+    }
 
     do
     {
-        driveMsg = (struct msg*) malloc(sizeof(struct msg));
-        turnMsg = (struct msg*) malloc(sizeof(struct msg));
+        driveMsg = (struct msg_t*) malloc(sizeof(struct msg_t));
+        turnMsg = (struct msg_t*) malloc(sizeof(struct msg_t));
 
+        turnMsg->type = DRIVE_MSG;
         turnMsg->id = 0;
         turnMsg->numOfParm = 0;
         turnMsg->values = NULL;
         turnMsg->Next = NULL;
-printf("NODE: %s\n", Map[5].RFID);
+
         switch(Map[previousPoint].NextRelDir)
         {
             case 1:
@@ -39,14 +46,14 @@ printf("NODE: %s\n", Map[5].RFID);
         driveMsg->values = NULL;
         driveMsg->Next = NULL;
 
-        addMsg(turnMsg);                          //Turn action on intersection
-        addMsg(driveMsg);                         //Drive to end of line
+        addMsg(driveQueue, turnMsg);              //Turn action on intersection
+        addMsg(driveQueue, driveMsg);             //Drive to end of line
 
-        previousPoint = Map[previousPoint].Next;        //Get next node
+        previousPoint = Map[previousPoint].Next;  //Get next node
 
         if(Map[previousPoint].Next == -1)
         {
-            hasNext = false;                            //End of route
+            hasNext = false;                      //End of route
         }
 
     } while(hasNext);

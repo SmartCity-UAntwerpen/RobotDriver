@@ -6,6 +6,11 @@
 #include "math.h"
 #include <pthread.h>
 
+#ifdef __cplusplus	//Check if the compiler is C++
+	extern "C"	//Code needs to be handled as C-style code
+	{
+#endif
+
 pthread_t driveThread;
 pthread_mutex_t _driveThreadLock;
 
@@ -81,5 +86,9 @@ void* _DriveLineFollow(void* args);
 int calibrate(void);
 
 void _pauseDrivingLoop(float* lMotorAngle, float* rMotorAngle);
+
+#ifdef __cplusplus		//Check if the compiler is C++
+	}		//End the extern "C" bracket
+#endif
 
 #endif

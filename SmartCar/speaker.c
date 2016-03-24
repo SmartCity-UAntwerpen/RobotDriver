@@ -1,6 +1,8 @@
 #include "speaker.h"
 
-void espeak(char* message)
+static bool _speakerMute = false;
+
+void espeak(char const* message)
 {
     char command[320];
     char lim_message[256];

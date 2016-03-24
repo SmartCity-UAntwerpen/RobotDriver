@@ -3,7 +3,7 @@
 static int _roadMapSize = 0;
 static NodeStruct* _roadMap;
 
-int parseMapFile(char* fileName)
+int parseMapFile(char const* fileName)
 {
     FILE* mapFile;
     char filePath[128] = "./";
