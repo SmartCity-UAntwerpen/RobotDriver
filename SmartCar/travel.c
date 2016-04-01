@@ -5,8 +5,8 @@ int Travel(NodeStruct* Map, int MapSize, int Start, int Finish, float Speed)
     bool hasNext = true;
     int previousPoint = Start;
 
-    struct msg_t *driveMsg;
-    struct msg_t *turnMsg;
+    msg_t *driveMsg;
+    msg_t *turnMsg;
 
     if(Map == NULL)
     {
@@ -16,8 +16,8 @@ int Travel(NodeStruct* Map, int MapSize, int Start, int Finish, float Speed)
 
     do
     {
-        driveMsg = (struct msg_t*) malloc(sizeof(struct msg_t));
-        turnMsg = (struct msg_t*) malloc(sizeof(struct msg_t));
+        driveMsg = (msg_t*) malloc(sizeof(msg_t));
+        turnMsg = (msg_t*) malloc(sizeof(msg_t));
 
         turnMsg->type = DRIVE_MSG;
         turnMsg->id = 0;

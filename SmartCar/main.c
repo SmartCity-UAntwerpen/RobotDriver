@@ -61,6 +61,9 @@ void* AbortHandler(void *arg)
             if(res>0) printf("Abort handler: LegoMotorDirectControl() CH2 fail.\n");
             res=LegoMotorDirectControl(&LegoMotor,3,0);
             if(res>0) printf("Abort handler: LegoMotorDirectControl() CH3 fail.\n");
+            printf("6\n");
+            res=stopRestInterface();
+            if(res>0) printf("Abort handler: Closing REST interface failed.\n");
 
             printf("ABORT complete\n");
             espeak("Safety abort.");

@@ -6,7 +6,7 @@ static pthread_mutex_t queueLock;
 int initDriveQueue(void)
 {
     //Allocated message queue struct
-    driveQueue = (struct msgqueue_t*) malloc (sizeof(struct msgqueue_t));
+    driveQueue = (msgqueue_t*) malloc (sizeof(msgqueue_t));
 
     if(driveQueue != NULL)
     {

@@ -1,6 +1,6 @@
 #include "msgqueue.h"
 
-int startQueue(struct msgqueue_t* msgqueue)
+int startQueue(msgqueue_t* msgqueue)
 {
     msgqueue->queueActiveFlag = true;
 
@@ -23,7 +23,7 @@ int startQueue(struct msgqueue_t* msgqueue)
     }
 }
 
-int stopQueue(struct msgqueue_t* msgqueue)
+int stopQueue(msgqueue_t* msgqueue)
 {
     msgqueue->queueActiveFlag = false;
 
@@ -35,9 +35,9 @@ int stopQueue(struct msgqueue_t* msgqueue)
     return 0;
 }
 
-int flushQueue(struct msgqueue_t* msgqueue)
+int flushQueue(msgqueue_t* msgqueue)
 {
-    struct msg_t *msgPointer;
+    msg_t *msgPointer;
 
     pthread_mutex_lock(&msgqueue->queueLock);
 
@@ -58,9 +58,9 @@ int flushQueue(struct msgqueue_t* msgqueue)
     return 0;
 }
 
-int addMsg(struct msgqueue_t* msgqueue, struct msg_t* message)
+int addMsg(msgqueue_t* msgqueue, msg_t* message)
 {
-    struct msg_t *msgPointer;
+    msg_t *msgPointer;
 
     pthread_mutex_lock(&msgqueue->queueLock);
 

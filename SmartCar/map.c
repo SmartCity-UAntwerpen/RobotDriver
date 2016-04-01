@@ -60,21 +60,17 @@ int clearRouteMap(NodeStruct* roadMap)
 
     if(roadMap != NULL)
     {
-        while((NodeStruct*) roadMap->Next != NULL)
+        while((NodeStruct*) roadMap != NULL)
         {
-            nodePointer = (NodeStruct*) roadMap->Next;
+            //Set temporary pointer to first element
+            nodePointer = (NodeStruct*) roadMap;
 
-            while((NodeStruct*) nodePointer->Next != NULL)
-            {
-                nodePointer = (NodeStruct*) nodePointer->Next;
-            }
+            //Switch front of node list to next element
+            roadMap = (NodeStruct*) roadMap->Next;
 
-            //Free allocated memory of last node in list
-            free((NodeStruct*) roadMap->Next);
+            //Free allocated memory of nodePointer
+            free((NodeStruct*) nodePointer);
         }
-
-        //Free allocated memory of first node in list
-        free(roadMap);
 
         return 0;
     }

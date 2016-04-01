@@ -22,6 +22,12 @@ void RobotApp(int argc, char *argv[])
     //Setup motordrivers
     DriveInit();
 
+    //Intialize RestInterface
+    if(initRestInterface() > 1)
+    {
+        printf("Failed to initialize REST interface!\n");
+    }
+
     //Initialize camera
     if(initCamera() > 1)
     {
@@ -47,6 +53,52 @@ void RobotApp(int argc, char *argv[])
     printf("DIJKSTRA FINISHED\n");
 
     Travel(getRoadMap(), getRoadMapSize(), 13, 7, 70);
+
+    printf("CREATING JSON OBJECT\n");
+
+    struct jsonAttribute_t* jsonObject = NULL;
+
+    if(addJSONAttribute(&jsonObject, "key", "vmpool", true) > 0)
+    {
+        printf("Error while adding attribute to JSON object\n");
+    }
+
+    if(addJSONAttribute(&jsonObject, "value", "hello", true) > 0)
+    {
+        printf("Error while adding attribute to JSON object\n");
+    }
+
+    char jsonString[230];
+
+    if(parseJSONString(jsonObject, jsonString, 130) > 0)
+    {
+        printf("Error while parsing JSON object\n");
+    }
+    else
+    {
+        printf("JSON STRING: %s", jsonString);
+    }
+
+    destroyJSONObject(jsonObject);
+/*
+    char message[1024];
+    char errMessage[500];
+
+    if(httpGet("http://192.168.1.10:1304/systemLoad", message, errMessage) > 0)
+    {
+        printf("%s\n", errMessage);
+    }
+
+    printf("%s\n", message);
+
+    if(httpPost("http://192.168.1.10:1304/systemConfig", "{\"key\":\"vmpool\",\"value\":\"hello\"}", "Content-Type: application/json", errMessage) > 0)
+    {
+        printf("%s\n", errMessage);
+    }
+    else
+    {
+        printf("%s\n", errMessage);
+    }
 
     while(1);
 

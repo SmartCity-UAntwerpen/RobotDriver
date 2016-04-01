@@ -13,7 +13,7 @@
 
 #define NON -1
 #define INF 10000
-typedef struct
+typedef struct NodeStruct
 {
 	int Neighbours[4];		//Index of neighbouring nodes, in order N,E,S,W   -1= no connection
 	int Distance[4];		//Distance to neighbouring nodes, in order N,E,S,W

@@ -13,13 +13,14 @@
 
 typedef void (*processMessageFunction)(void*);
 
-struct msg_t {
-                int type;
-                int id;
-                int numOfParm;
-                int* values;
-                struct msg_t *Next;
-             };
+typedef struct msg_t
+{
+    int type;
+    int id;
+    int numOfParm;
+    int* values;
+    struct msg_t *Next;
+} msg_t;
 
 enum msg_type {
                 DRIVE_MSG,
@@ -35,19 +36,20 @@ enum msg_id_drive {
                     MSG_ID_DRIVE_TOTAL
                   };
 
-struct msgqueue_t {
-                    pthread_t queueThread;
-                    pthread_mutex_t queueLock;
-                    struct msg_t *queuePointer;
-                    bool queueActiveFlag;
-                    bool queueThreadRunning;
-                    processMessageFunction processMessage;
-                  };
+typedef struct msgqueue_t
+{
+    pthread_t queueThread;
+    pthread_mutex_t queueLock;
+    struct msg_t *queuePointer;
+    bool queueActiveFlag;
+    bool queueThreadRunning;
+    processMessageFunction processMessage;
+} msgqueue_t;
 
-int startQueue(struct msgqueue_t* msgqueue);
-int stopQueue(struct msgqueue_t* msgqueue);
-int flushQueue(struct msgqueue_t* msgqueue);
-int addMsg(struct msgqueue_t* msgqueue, struct msg_t* message);
+int startQueue(msgqueue_t* msgqueue);
+int stopQueue(msgqueue_t* msgqueue);
+int flushQueue(msgqueue_t* msgqueue);
+int addMsg(msgqueue_t* msgqueue, msg_t* message);
 
 #ifdef __cplusplus		//Check if the compiler is C++
 	}		//End the extern "C" bracket

@@ -21,6 +21,8 @@
 #include "travel.h"
 #include "dijkstra.h"
 #include "map.h"
+#include "restInterface.h"
+#include "json.h"
 
 #ifdef __cplusplus	//Check if the compiler is C++
     #include "camera.h"
