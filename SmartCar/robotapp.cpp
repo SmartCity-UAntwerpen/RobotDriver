@@ -56,19 +56,113 @@ void RobotApp(int argc, char *argv[])
 
     printf("CREATING JSON OBJECT\n");
 
-    struct jsonAttribute_t* jsonObject = NULL;
+    struct jsonMember_t* jsonObject = NULL;
+    struct jsonMember_t* jsonSubObject = NULL;
+    struct jsonMember_t* jsonArrayObject = NULL;
+    struct jsonMember_t* jsonArrayObject2 = NULL;
 
-    if(addJSONAttribute(&jsonObject, "key", "vmpool", true) > 0)
+    if(addJSONMemberStringValue(&jsonObject, "key", "vmpool", true) > 0)
     {
-        printf("Error while adding attribute to JSON object\n");
+        printf("Error while adding member to JSON object\n");
+    }
+    else
+    {
+        printf("Json object success\n");
     }
 
-    if(addJSONAttribute(&jsonObject, "value", "hello", true) > 0)
+    if(addJSONMemberStringValue(&jsonSubObject, "value", "hello", true) > 0)
     {
-        printf("Error while adding attribute to JSON object\n");
+        printf("Error while adding member to JSON object\n");
+    }
+    else
+    {
+        printf("Json subobject success\n");
     }
 
-    char jsonString[230];
+    if(addJSONMemberStringValue(&jsonArrayObject, "ArrayMember", "1", false) > 0)
+    {
+        printf("Error while adding member to JSON object\n");
+    }
+    else
+    {
+        printf("Json subobject success\n");
+    }
+
+    if(addJSONMemberStringValue(&jsonArrayObject2, "ArrayMember", "2", false) > 0)
+    {
+        printf("Error while adding member to JSON object\n");
+    }
+    else
+    {
+        printf("Json subobject success\n");
+    }
+
+    jsonArrayObject->next = jsonArrayObject2;
+    jsonSubObject->next = jsonArrayObject;
+
+    if(addJSONMemberObjectValue(&jsonObject, "Subobject", jsonSubObject) > 0)
+    {
+        printf("Error while adding member to JSON object\n");
+    }
+    else
+    {
+        printf("Adding subobject success\n");
+    }
+
+    if(addJSONMemberStringValue(&jsonObject, "INTEGER", "500", false) > 0)
+    {
+        printf("Error while adding Integer member to JSON object\n");
+    }
+    else
+    {
+        printf("Adding Integer member success\n");
+    }
+
+    if(addJSONMemberStringValue(&jsonObject, "ARRAY", "[500,\"test\",3]", false) > 0)
+    {
+        printf("Error while adding Array member to JSON object\n");
+    }
+    else
+    {
+        printf("Adding Array member success\n");
+    }
+
+    char jsonString[450];
+
+    if(parseJSONString(jsonObject, jsonString, 450) > 0)
+    {
+        printf("Error while parsing JSON object\n");
+    }
+    else
+    {
+        printf("JSON STRING: %s\n", jsonString);
+    }
+
+    if(parseJSONObject(jsonString, &jsonObject) > 0)
+    {
+        printf("Failed to parse object from string\n");
+    }
+    else
+    {
+        printf("Parsing object from String success\n");
+    }
+
+    printf("%s\n", jsonObject->name);
+    printf("%s\n\n", jsonObject->value);
+
+    printf("%s\n", jsonObject->next->name);
+    printf("%s\n", jsonObject->next->object->name);
+    printf("%s\n", jsonObject->next->object->value);
+    printf("%s\n", jsonObject->next->object->next->name);
+    printf("%s\n", jsonObject->next->object->next->value);
+    printf("%s\n", jsonObject->next->object->next->next->name);
+    printf("%s\n\n", jsonObject->next->object->next->next->value);
+
+    printf("%s\n", jsonObject->next->next->name);
+    printf("%s\n\n", jsonObject->next->next->value);
+
+    printf("%s\n", jsonObject->next->next->next->name);
+    printf("%s\n\n", jsonObject->next->next->next->value);
 
     if(parseJSONString(jsonObject, jsonString, 130) > 0)
     {
@@ -76,10 +170,10 @@ void RobotApp(int argc, char *argv[])
     }
     else
     {
-        printf("JSON STRING: %s", jsonString);
+        printf("JSON STRING: %s\n", jsonString);
     }
 
-    destroyJSONObject(jsonObject);
+    destroyJSONObject(&jsonObject);
 /*
     char message[1024];
     char errMessage[500];

@@ -11,21 +11,29 @@
 	{
 #endif
 
-typedef struct jsonAttribute_t
+typedef struct jsonMember_t
 {
-    char property[65];
+    char* name;
     bool stringValue;
-    char value[129];
-    struct jsonAttribute_t* next;
-} jsonAttribute_t;
+    char* value;
+    struct jsonMember_t* object;
+    bool objectValue;
+    struct jsonMember_t* next;
+} jsonMember_t;
 
-int addJSONAttribute(jsonAttribute_t** object, char const* property, char const* value, bool stringValue);
+int addJSONMemberStringValue(jsonMember_t** object, char const* name, char const* value, bool stringValue);
 
-int destroyJSONObject(jsonAttribute_t* object);
+int addJSONMemberObjectValue(jsonMember_t** object, char const* name, jsonMember_t* value);
 
-int parseJSONString(jsonAttribute_t* object, char* jsonString, int size);
+int destroyJSONObject(jsonMember_t** object);
 
-int parseJSONObject(char* jsonString, jsonAttribute_t** object);
+int parseJSONString(jsonMember_t* object, char* jsonString, int size);
+
+int _parseJSONStringRecursiveHelper(jsonMember_t* object, char* jsonString, int size, int* charCounter);
+
+int parseJSONObject(char* jsonString, jsonMember_t** object);
+
+int _parseJSONObjectRecursiveHelper(char* jsonString, jsonMember_t** object, int* charCounter);
 
 #ifdef __cplusplus		//Check if the compiler is C++
 	}		//End the extern "C" bracket
