@@ -9,7 +9,7 @@ int initRestInterface()
 {
     if(_curlINIT)
     {
-        //cURL already initialized
+        //cURL already initialised
         return 1;
     }
 

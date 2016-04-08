@@ -26,6 +26,7 @@
 
 #ifdef __cplusplus	//Check if the compiler is C++
     #include "camera.h"
+    #include "smartcore.h"
 
 	extern "C"	//Code needs to be handled as C-style code
 	{

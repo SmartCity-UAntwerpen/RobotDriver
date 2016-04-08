@@ -11,9 +11,6 @@
 	{
 #endif
 
-pthread_t driveThread;
-pthread_mutex_t _driveThreadLock;
-
 /**
  * \brief Initialize drive system
  * \return
@@ -21,6 +18,8 @@ pthread_mutex_t _driveThreadLock;
  * 1:Error \n
 */
 int DriveInit(void);
+
+pthread_t* _getDriveThread(void);
 
 int AbortDriving(void);
 

@@ -46,8 +46,8 @@ int Travel(NodeStruct* Map, int MapSize, int Start, int Finish, float Speed)
         driveMsg->values = NULL;
         driveMsg->Next = NULL;
 
-        addMsg(driveQueue, turnMsg);              //Turn action on intersection
-        addMsg(driveQueue, driveMsg);             //Drive to end of line
+        addMsg(getDriveQueue(), turnMsg);              //Turn action on intersection
+        addMsg(getDriveQueue(), driveMsg);             //Drive to end of line
 
         previousPoint = Map[previousPoint].Next;  //Get next node
 

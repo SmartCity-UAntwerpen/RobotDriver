@@ -20,6 +20,10 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="../../minimod/Libs/ansi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../minimod/Libs/ansi.h" />
 		<Unit filename="../../minimod/Libs/datatypes.h" />
 		<Unit filename="../../minimod/Libs/lego-motor.c">
 			<Option compilerVar="CC" />
@@ -69,6 +73,14 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="commInterface.h" />
+		<Unit filename="config.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="config.h" />
+		<Unit filename="configreader.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="configreader.h" />
 		<Unit filename="dijkstra.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -81,6 +93,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="drivequeue.h" />
+		<Unit filename="json.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="json.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -99,6 +115,8 @@
 		<Unit filename="restInterface.h" />
 		<Unit filename="robotapp.cpp" />
 		<Unit filename="robotapp.h" />
+		<Unit filename="smartcore.cpp" />
+		<Unit filename="smartcore.h" />
 		<Unit filename="speaker.c">
 			<Option compilerVar="CC" />
 		</Unit>

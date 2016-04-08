@@ -10,9 +10,9 @@
 	{
 #endif
 
-struct msgqueue_t* driveQueue;
-
 int initDriveQueue(void);
+
+msgqueue_t* getDriveQueue(void);
 
 void* _processDriveMessage(void* args);
 

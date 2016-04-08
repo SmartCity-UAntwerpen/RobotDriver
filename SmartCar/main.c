@@ -42,9 +42,9 @@ void* AbortHandler(void *arg)
             printf("1\n");
             sem_wait(&RS485Client.Busy); //Block RS485 system
             printf("2\n");
-            if(driveQueue != NULL) pthread_cancel(driveQueue->queueThread); //Now kill the drive message queue thread
+            if(getDriveQueue() != NULL) pthread_cancel(getDriveQueue()->queueThread); //Now kill the drive message queue thread
             printf("3\n");
-            pthread_cancel(driveThread);  //Now kill the drive thread
+            pthread_cancel((pthread_t)*_getDriveThread);  //Now kill the drive thread
             printf("4\n");
             if(MasterThread!=CurThread) pthread_cancel(MasterThread); //Now kill the master thread in case the abort button has been pressed
             sem_post(&RS485Client.Busy); //And release control to the termination calls below
@@ -64,6 +64,9 @@ void* AbortHandler(void *arg)
             printf("6\n");
             res=stopRestInterface();
             if(res>0) printf("Abort handler: Closing REST interface failed.\n");
+            printf("7\n");
+            res=RS485ClientDeinit(&RS485Client);
+            if(res>0) printf("Abort handler: RS485ClientDeinit() fail.\n");
 
             printf("ABORT complete\n");
             espeak("Safety abort.");
@@ -105,7 +108,7 @@ printf("ABORT BUTTON HARD CODED TURNED OFF! LINE 30\n");
     printBanner();
 
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_GREEN);
-    printf("Initializing RS485 modules...\n");
+    printf("Initialising RS485 modules...\n");
 
     //Initialize RS485Client
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
@@ -231,7 +234,7 @@ printf("ABORT BUTTON HARD CODED TURNED OFF! LINE 30\n");
     if(res!=0)
     {
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_RED);
-        printf("PwrLiIion1A error code %d\n",res);
+        printf("FAIL: PwrLiIion1A error code %d\n",res);
     }
     else
     {
@@ -248,7 +251,7 @@ printf("ABORT BUTTON HARD CODED TURNED OFF! LINE 30\n");
     if(res!=0)
     {
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_RED);
-        printf ("IMU error code %d\n",res);
+        printf ("FAIL: IMU error code %d\n",res);
     }
     else
     {
@@ -271,13 +274,11 @@ printf("ABORT BUTTON HARD CODED TURNED OFF! LINE 30\n");
 
     //Now block main thread from processing SIGINT
     sigset_t set;
-    //int s;
     sigemptyset(&set);
     sigaddset(&set, SIGINT);
     //pthread_sigmask(SIG_BLOCK, &set, NULL);
 
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
-    printf("Init complete\n");
 
     //Main application code
     RobotApp(argc,argv);

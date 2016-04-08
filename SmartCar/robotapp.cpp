@@ -4,9 +4,37 @@ pthread_t commThread;
 
 void RobotApp(int argc, char *argv[])
 {
-    struct msg *newMsg;
+    SC::SmartCore* smartCore;
 
     setSpeakerMute(true);
+
+    //Initialise system
+    smartCore = new SC::SmartCore();
+
+    if(smartCore->initialiseCore(argc, argv) != 0)
+    {
+        printf("Core initialisation failed!\n");
+        printf("System will shutdown...\n");
+        return;
+    }
+
+    printf("Core ready...\n");
+    espeak("System ready");
+
+    //Start core
+    smartCore->run();
+
+    //Release core
+    delete(smartCore);
+
+
+
+
+/*
+    //Initialize
+    struct msg *newMsg;
+
+    setSpeakerMute(false);
 
     //Read arguments
     /*if(argc < 1)
@@ -15,7 +43,7 @@ void RobotApp(int argc, char *argv[])
 
         return;
     }*/
-
+/*
     //Initialize Drivequeue
     initDriveQueue();
 
@@ -174,6 +202,7 @@ void RobotApp(int argc, char *argv[])
     }
 
     destroyJSONObject(&jsonObject);
+
 /*
     char message[1024];
     char errMessage[500];

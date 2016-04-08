@@ -3,6 +3,8 @@
 static pthread_t queueThread;
 static pthread_mutex_t queueLock;
 
+static struct msgqueue_t* driveQueue;
+
 int initDriveQueue(void)
 {
     //Allocated message queue struct
@@ -25,6 +27,11 @@ int initDriveQueue(void)
         //Queue is not properly allocated!
         return 1;
     }
+}
+
+msgqueue_t* getDriveQueue(void)
+{
+    return driveQueue;
 }
 
 void* _processDriveMessage(void* args)

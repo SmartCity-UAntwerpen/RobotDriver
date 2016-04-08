@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <pthread.h>
-#include "TimeService.h"
+#include "TimeSupport.h"
 
 #ifdef __cplusplus	//Check if the compiler is C++
 	extern "C"	//Code needs to be handled as C-style code

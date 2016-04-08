@@ -7,6 +7,9 @@
 #include "math.h"
 #include "timestep.h"
 
+static pthread_t driveThread;
+static pthread_mutex_t _driveThreadLock;
+
 static float const MMPD = 0.46;     // mm per degree
 static float const MMRD = 2;        // mm per degree to rotate
 static uint16 const KP = 1800;      // first value was 2100, this one seems more stable
@@ -48,13 +51,13 @@ int DriveInit(void)
     error += LegoMotorSetPos(&LegoMotor, MOTOR_R, 0);
     error += LegoMotorSetPos(&LegoMotor, MOTOR_L, 0);
 
-    // Setup reflection sensors
+    //Setup reflection sensors
     error += LegoSensorSetup(&LegoSensor, SENSOR_R, CFG_LSENSOR);
     error += LegoSensorSetup(&LegoSensor, SENSOR_L, CFG_LSENSOR);
     error += LegoSensorSetupLSensor(&LegoSensor, SENSOR_R, 1);
     error += LegoSensorSetupLSensor(&LegoSensor, SENSOR_L, 1);
 
-    // calibrate
+    //Calibrate
     cal = calibrate();
     if(error == 0)
     {
@@ -64,6 +67,11 @@ int DriveInit(void)
     {
         return 1;
     }
+}
+
+pthread_t* _getDriveThread(void)
+{
+    return &driveThread;
 }
 
 int AbortDriving(void)

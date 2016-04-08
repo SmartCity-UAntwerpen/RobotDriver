@@ -1,7 +1,7 @@
 #include "watchdog.h"
 
-int _watchdogActive = 0;
-long watchTime;
+static int _watchdogActive = 0;
+static long watchTime;
 pthread_t watchdogThread;
 pthread_mutex_t watchdogTimerMutex;
 WatchdogTimeOutCallback_t* watchdogTimeOutCallback;
@@ -34,7 +34,7 @@ int resetWatchdog(void)
 {
 	//Set new time-out time
 	pthread_mutex_lock(&watchdogTimerMutex);
-	watchTime = (getTimeInSec() * 1000.0 + getTimeInUs() / 1000.0) + watchdogPackageNeededMS;
+	watchTime = (GetTimeSec() * 1000.0 + GetTimeUs() / 1000.0) + watchdogPackageNeededMS;
 	pthread_mutex_unlock(&watchdogTimerMutex);
 
 	return 0;
@@ -70,12 +70,12 @@ void* watchingThread(void* args)
 	long now;
 
 	pthread_mutex_lock(&watchdogTimerMutex);
-	watchTime = (getTimeInSec() * 1000.0 + getTimeInUs() / 1000.0) + watchdogPackageNeededMS;
+	watchTime = (GetTimeSec() * 1000.0 + GetTimeUs() / 1000.0) + watchdogPackageNeededMS;
 	pthread_mutex_unlock(&watchdogTimerMutex);
 
 	while(_watchdogActive)
 	{
-		now = (getTimeInSec() * 1000.0 + getTimeInUs() / 1000.0);		//Get system time
+		now = (GetTimeSec() * 1000.0 + GetTimeUs() / 1000.0);		//Get system time
 
 		if(watchTime < now)
 		{
