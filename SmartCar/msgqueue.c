@@ -10,7 +10,7 @@ int startQueue(msgqueue_t* msgqueue)
         {
             printf("Error while creating dispatch thread!\n");
 
-            return -2;
+            return 2;
         }
 
         msgqueue->queueThreadRunning = true;
@@ -19,7 +19,7 @@ int startQueue(msgqueue_t* msgqueue)
     }
     else
     {
-        return -1;
+        return 1;
     }
 }
 

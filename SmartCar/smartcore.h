@@ -13,17 +13,19 @@
 #include "restInterface.h"
 #include "json.h"
 #include "watchdog.h"
+#include "config.h"
+#include "configfile.h"
 
 namespace SC
 {
-    enum OperationMode
+    typedef enum OperationMode
     {
         MODE_STANDALONE,
         MODE_SERVER_VERIFICATION,
         MODE_SERVER_ROUTE,
         MODE_SERVER_DIRECTIONS,
         MODE_MAX
-    };
+    } OperationMode;
 
     class SmartCore
     {

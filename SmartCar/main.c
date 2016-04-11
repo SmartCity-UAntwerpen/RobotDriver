@@ -205,6 +205,7 @@ printf("ABORT BUTTON HARD CODED TURNED OFF! LINE 30\n");
     }
 
     //RF-CC1101 module init
+    /*
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
     printf ("RF module init @ RS485 addr:%d...",RS485_RF_ADDR);
     RfCC1101.RS485Client=&RS485Client;
@@ -224,6 +225,7 @@ printf("ABORT BUTTON HARD CODED TURNED OFF! LINE 30\n");
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_GREEN);
         printf("PASS\n");
     }
+    */
 
     //PWR-LIION1A init
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);

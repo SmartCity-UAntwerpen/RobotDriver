@@ -5,6 +5,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <signal.h>
 
 #ifdef __cplusplus	//Check if the compiler is C++
 	extern "C"	//Code needs to be handled as C-style code
@@ -17,9 +21,17 @@
 */
 void espeak(char const* message);
 
+int stopSpeaker(void);
+
+int _playSpeakerCommand(char* speakerCommand);
+
+int _runSystemCommand(char* command);
+
 void setSpeakerMute(bool muted);
 
 bool getSpeakerMute(void);
+
+bool speakerPlaying(void);
 
 #ifdef __cplusplus		//Check if the compiler is C++
 	}		//End the extern "C" bracket

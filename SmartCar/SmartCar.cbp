@@ -77,10 +77,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="config.h" />
-		<Unit filename="configreader.c">
+		<Unit filename="configfile.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="configreader.h" />
+		<Unit filename="configfile.h" />
 		<Unit filename="dijkstra.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -97,6 +97,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="json.h" />
+		<Unit filename="locationservice.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="locationservice.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -108,6 +112,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="msgqueue.h" />
+		<Unit filename="powercontrol.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="powercontrol.h" />
 		<Unit filename="project.h" />
 		<Unit filename="restInterface.c">
 			<Option compilerVar="CC" />

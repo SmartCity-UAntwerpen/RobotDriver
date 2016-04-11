@@ -6,7 +6,7 @@ void RobotApp(int argc, char *argv[])
 {
     SC::SmartCore* smartCore;
 
-    setSpeakerMute(true);
+    setSpeakerMute(false);
 
     //Initialise system
     smartCore = new SC::SmartCore();
@@ -17,10 +17,16 @@ void RobotApp(int argc, char *argv[])
         printf("System will shutdown...\n");
         return;
     }
-
+espeak("hello, this is the story of a raspberri pi");
     printf("Core ready...\n");
     espeak("System ready");
-
+espeak("Nice to meet you! My name is Jonhson");
+espeak("Please don't crash, this is a speak test");
+_delay_ms(100);
+espeak("super this is working properly");
+_delay_ms(100);
+espeak("maybe we must try this test a couple of times");
+_delay_ms(5000);
     //Start core
     smartCore->run();
 
@@ -68,7 +74,7 @@ void RobotApp(int argc, char *argv[])
     printf("Program up and running...\n");
     espeak("Initialisation complete.");
 
-    if(startQueue(driveQueue) != 0)
+    if(startQueue(getDriveQueue()) != 0)
     {
         printf("Failed to start queue dispatcher!");
     }
@@ -81,7 +87,7 @@ void RobotApp(int argc, char *argv[])
     printf("DIJKSTRA FINISHED\n");
 
     Travel(getRoadMap(), getRoadMapSize(), 13, 7, 70);
-
+/*
     printf("CREATING JSON OBJECT\n");
 
     struct jsonMember_t* jsonObject = NULL;
@@ -228,33 +234,36 @@ void RobotApp(int argc, char *argv[])
 
 /*
     int i = 0;
+    msg_t* newMsg;
 
     while(i < 2)
     {
-        newMsg = (struct msg *) malloc (sizeof(struct msg));
+        newMsg = (struct msg_t *) malloc (sizeof(struct msg_t));
 
         newMsg->id = DRIVE_STRAIGHT;
         newMsg->numOfParm = 0;
         newMsg->values = NULL;
         newMsg->Next = NULL;
 
-        addMsg(newMsg);
+        addMsg(getDriveQueue(), newMsg);
 
         printf("Message added: DRIVE_STRAIGHT\n");
 
-        newMsg = (struct msg *) malloc (sizeof(struct msg));
+        newMsg = (struct msg_t *) malloc (sizeof(struct msg_t));
 
         newMsg->id = DRIVE_RIGHT;
         newMsg->numOfParm = 0;
         newMsg->values = NULL;
         newMsg->Next = NULL;
 
-        addMsg(newMsg);
+        addMsg(getDriveQueue(), newMsg);
 
         printf("Message added: DRIVE_RIGHT\n");
 
         i++;
     }
+
+    startQueue(getDriveQueue());
 
 /*
     WaitForDriving();

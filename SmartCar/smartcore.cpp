@@ -31,6 +31,9 @@ SmartCore::~SmartCore()
 
     //Stop camera
     closeCamera();
+
+    //Destroy configuration
+    deinitConfiguration();
 }
 
 int SmartCore::initialiseCore(int argc, char *argv[])
@@ -129,8 +132,38 @@ int SmartCore::initialiseCore(int argc, char *argv[])
 
     //Initialise configuration
     //Load default configuration
+    AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
+    printf("Load configuration...");
+    res = initConfiguration();
+    if(res > 0)
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_RED);
+        printf("FAIL: initConfiguration() error code %d\n", res);
+
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
+        return 5;
+    }
 
     //Read configuration if available
+    res = readConfigFile("sc-conf");
+    if(res > 1)
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_RED);
+        printf("FAIL: loadConfigFile() error code %d\n", res);
+
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
+        return 6;
+    }
+    else if(res == 1)
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_YELLOW);
+        printf("WARNING: no configuration file found. loadConfigFile() error code %d\n", res);
+    }
+    else
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_GREEN);
+        printf("OK\n");
+    }
 
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
     return 0;
@@ -142,10 +175,6 @@ int SmartCore::run()
 
     while(!abort)
     {
-        for(int i = 0; i < 99999999; i++)
-        {
-        }
-
         abort = true;
     }
 

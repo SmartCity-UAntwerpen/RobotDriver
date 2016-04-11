@@ -1,6 +1,7 @@
 #include "speaker.h"
 
 static bool _speakerMute = false;
+static pid_t speakerChild;
 
 void espeak(char const* message)
 {
@@ -16,8 +17,92 @@ void espeak(char const* message)
         //Create espeak command
         sprintf(command, "espeak -ven+f2 -k5 -a50 -s150 \"%s\" --stdout | aplay 2>/dev/null", lim_message);
 
-        system(command);
+        _playSpeakerCommand(command);
     }
+}
+
+int stopSpeaker(void)
+{
+    if(speakerPlaying())
+    {
+        kill(speakerChild, SIGKILL);
+
+        //Kill all aplay instances (SIGPIPE)
+        system("killall -13 aplay 2>/dev/null");
+
+        while(speakerPlaying())
+        {
+            //Wait for child to exit
+        }
+
+        return 0;
+    }
+    else
+    {
+        //Speaker not playing
+        return 1;
+    }
+}
+
+int _playSpeakerCommand(char* speakerCommand)
+{
+    char* command;
+
+    if(speakerPlaying())
+    {
+        stopSpeaker();
+    }
+
+    command = (char*) malloc (strlen(speakerCommand) + 1);
+    strncpy(command, speakerCommand, strlen(speakerCommand));
+    command[strlen(speakerCommand)] = '\0';
+
+    if(_runSystemCommand(command))
+    {
+        if(command != NULL)
+        {
+            free(command);
+        }
+
+        printf("Error while creating speaker process!\n");
+
+        return 1;
+    }
+
+    return 0;
+}
+
+int _runSystemCommand(char* command)
+{
+    if(command == NULL)
+    {
+        //No command given
+        return 2;
+    }
+
+    speakerChild = fork();
+
+    if(speakerChild == 0)
+    {
+        //Child process
+
+        //Run system command
+        system(command);
+
+        free(command);
+
+        //Child process should not reach this point
+        _exit(127);
+    }
+    else if(speakerChild == -1)
+    {
+        //Could not create child process
+        return 1;
+    }
+
+    free(command);
+
+    return 0;
 }
 
 void setSpeakerMute(bool muted)
@@ -28,4 +113,13 @@ void setSpeakerMute(bool muted)
 bool getSpeakerMute(void)
 {
     return _speakerMute;
+}
+
+bool speakerPlaying(void)
+{
+    int status;
+
+    pid_t result = waitpid(speakerChild, &status, WNOHANG);
+
+    return result == 0 ? 1 : 0;
 }

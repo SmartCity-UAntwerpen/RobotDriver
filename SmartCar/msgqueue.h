@@ -22,19 +22,21 @@ typedef struct msg_t
     struct msg_t *Next;
 } msg_t;
 
-enum msg_type {
-                DRIVE_MSG,
-                MSG_TYPE_TOTAL
-              };
+typedef enum msg_type
+{
+    DRIVE_MSG,
+    MSG_TYPE_TOTAL
+} msg_type;
 
-enum msg_id_drive {
-                    ABORT,
-                    DRIVE_STRAIGHT,
-                    DRIVE_D_STRAIGHT,
-                    DRIVE_RIGHT,
-                    DRIVE_LEFT,
-                    MSG_ID_DRIVE_TOTAL
-                  };
+typedef enum msg_id_drive
+{
+    ABORT,
+    DRIVE_STRAIGHT,
+    DRIVE_D_STRAIGHT,
+    DRIVE_RIGHT,
+    DRIVE_LEFT,
+    MSG_ID_DRIVE_TOTAL
+} msg_id_drive;
 
 typedef struct msgqueue_t
 {
