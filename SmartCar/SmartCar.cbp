@@ -97,10 +97,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="json.h" />
-		<Unit filename="locationservice.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="locationservice.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -123,6 +119,10 @@
 		<Unit filename="restInterface.h" />
 		<Unit filename="robotapp.cpp" />
 		<Unit filename="robotapp.h" />
+		<Unit filename="serversocket.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="serversocket.h" />
 		<Unit filename="smartcore.cpp" />
 		<Unit filename="smartcore.h" />
 		<Unit filename="speaker.c">

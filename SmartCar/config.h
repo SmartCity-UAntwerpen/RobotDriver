@@ -20,11 +20,14 @@ typedef struct config_t
 typedef enum ConfigKey
 {
     CONFIG_CARNAME,
+    CONFIG_LISTENINGPORT,
     CONFIG_SERVERURL,
     CONFIG_MAX
 } ConfigKey;
 
 int initConfiguration(void);
+
+int _initConfigPair(ConfigKey configKey, char* key, char* value);
 
 int deinitConfiguration(void);
 

@@ -14,6 +14,7 @@ LegoSensorStruct LegoSensor;
 RfCC1101Struct RfCC1101;
 PwrLiIon1AStruct PwrLiIion1A;
 ImuStruct Imu;
+socket_t TCPSocket;
 
 pthread_t AbortThread;
 static uint8 AbortRequest=0;
@@ -65,6 +66,10 @@ void* AbortHandler(void *arg)
             res=stopRestInterface();
             if(res>0) printf("Abort handler: Closing REST interface failed.\n");
             printf("7\n");
+            stopListening(&TCPSocket);
+            res=releaseSocket(&TCPSocket);
+            if(res>0) printf("Abort handler: Closing TCP socket failed.\n");
+            printf("8\n");
             res=RS485ClientDeinit(&RS485Client);
             if(res>0) printf("Abort handler: RS485ClientDeinit() fail.\n");
 
@@ -306,7 +311,7 @@ printf("ABORT BUTTON HARD CODED TURNED OFF! LINE 30\n");
 
 void printBanner()
 {
-    printf("%s%s%s%s%s%s%s%s%s",
+    printf("%s%s%s%s%s%s%s%s%s%s%s",
            "   _____                      _    _____ _ _            \n",
            "  / ____|                    | |  / ____(_) |           \n",
            " | (___  _ __ ___   __ _ _ __| |_| |     _| |_ _   _    \n",
@@ -315,5 +320,7 @@ void printBanner()
            " |_____/|_| |_| |_|\\__,_|_|   \\__|\\_____|_|\\__|\\__, |   \n",
            "                                                __/ |   \n",
            " ==============================================|___/=   \n",
-           "  :: SmartCity Car - 2016 ::               (v. 0.0.1)   \n\n");
+           "  :: SmartCity Car - 2016 ::               (v. ",
+           APP_VERSION,
+           ")\n\n");
 }

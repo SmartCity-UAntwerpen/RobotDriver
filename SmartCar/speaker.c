@@ -91,8 +91,8 @@ int _runSystemCommand(char* command)
 
         free(command);
 
-        //Child process should not reach this point
-        _exit(127);
+        //Terminate Child process
+        _exit(0);
     }
     else if(speakerChild == -1)
     {

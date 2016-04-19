@@ -6,32 +6,44 @@ int initConfiguration(void)
 {
     //Initialise default configuration
     //Config Carname
-    configuration[CONFIG_CARNAME].key = (char*) malloc (strlen("carname") + 1);
-    configuration[CONFIG_CARNAME].value = (char*) malloc (strlen("SimCar") + 1);
-
-    if(configuration[CONFIG_CARNAME].key == NULL || configuration[CONFIG_CARNAME].value == NULL)
+    if(_initConfigPair(CONFIG_CARNAME, "carname", "SimCar") > 0)
     {
         printf("Could not allocate memory for configuration!\n");
 
         return 1;
     }
 
-    strcpy(configuration[CONFIG_CARNAME].key, "carname");
-    strcpy(configuration[CONFIG_CARNAME].value, "SimCar");
+    //Config Socket port
+    if(_initConfigPair(CONFIG_LISTENINGPORT, "port", "1313") > 0)
+    {
+        printf("Could not allocate memory for configuration!\n");
+
+        return 1;
+    }
 
     //Config Server URL
-    configuration[CONFIG_SERVERURL].key = (char*) malloc (strlen("serverurl") + 1);
-    configuration[CONFIG_SERVERURL].value = (char*) malloc (strlen("") + 1);
-
-    if(configuration[CONFIG_SERVERURL].key == NULL || configuration[CONFIG_SERVERURL].value == NULL)
+    if(_initConfigPair(CONFIG_SERVERURL, "serverurl", "") > 0)
     {
         printf("Could not allocate memory for configuration!\n");
 
         return 1;
     }
 
-    strcpy(configuration[CONFIG_SERVERURL].key, "serverurl");
-    strcpy(configuration[CONFIG_SERVERURL].value, "");
+    return 0;
+}
+
+int _initConfigPair(ConfigKey configKey, char* key, char* value)
+{
+    configuration[configKey].key = (char*) malloc (strlen(key) + 1);
+    configuration[configKey].value = (char*) malloc (strlen(value) + 1);
+
+    if(configuration[configKey].key == NULL || configuration[configKey].value == NULL)
+    {
+        return 1;
+    }
+
+    strcpy(configuration[configKey].key, key);
+    strcpy(configuration[configKey].value, value);
 
     return 0;
 }

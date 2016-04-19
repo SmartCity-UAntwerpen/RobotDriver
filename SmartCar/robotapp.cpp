@@ -6,10 +6,8 @@ void RobotApp(int argc, char *argv[])
 {
     SC::SmartCore* smartCore;
 
-    setSpeakerMute(false);
-
     //Initialise system
-    smartCore = new SC::SmartCore();
+    smartCore = SC::SmartCore::getInstance();
 
     if(smartCore->initialiseCore(argc, argv) != 0)
     {
@@ -17,24 +15,17 @@ void RobotApp(int argc, char *argv[])
         printf("System will shutdown...\n");
         return;
     }
-espeak("hello, this is the story of a raspberri pi");
+
     printf("Core ready...\n");
     espeak("System ready");
-espeak("Nice to meet you! My name is Jonhson");
-espeak("Please don't crash, this is a speak test");
-_delay_ms(100);
-espeak("super this is working properly");
-_delay_ms(100);
-espeak("maybe we must try this test a couple of times");
-_delay_ms(5000);
+
     //Start core
     smartCore->run();
 
     //Release core
     delete(smartCore);
-
-
-
+    printf("Core shutdown...\n");
+    espeak("System shutdown");
 
 /*
     //Initialize
@@ -236,7 +227,7 @@ _delay_ms(5000);
     int i = 0;
     msg_t* newMsg;
 
-    while(i < 2)
+    while(i < 10)
     {
         newMsg = (struct msg_t *) malloc (sizeof(struct msg_t));
 

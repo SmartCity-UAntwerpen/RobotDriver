@@ -23,6 +23,7 @@
 #include "map.h"
 #include "restInterface.h"
 #include "json.h"
+#include "serversocket.h"
 
 #ifdef __cplusplus	//Check if the compiler is C++
     #include "camera.h"
@@ -44,13 +45,13 @@
 
 #define SENSOR_LIFT 3
 
-
 extern RS485ClientStruct RS485Client;
 extern LegoMotorStruct LegoMotor;
 extern LegoSensorStruct LegoSensor;
 extern RfCC1101Struct RfCC1101;
 extern PwrLiIon1AStruct PwrLiIion1A;
 extern ImuStruct Imu;
+extern socket_t TCPSocket;
 
 void RobotApp(int argc, char *argv[]);
 

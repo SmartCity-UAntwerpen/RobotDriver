@@ -34,7 +34,7 @@ int readConfigFile(char const* fileName)
             //Check if line is not empty
             if(keyPointer != NULL)
             {
-                valuePointer = strtok(NULL, "\n");
+                valuePointer = strtok(NULL, "\r\n");
 
                 //Check if value is not empty
                 if(valuePointer != NULL)

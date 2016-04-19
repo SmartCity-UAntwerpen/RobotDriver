@@ -2,32 +2,25 @@
 
 using namespace SC;
 
+//Single instance of class
+SmartCore* SmartCore::smartCore_instance = NULL;
+
 //Default constructor
 SmartCore::SmartCore()
 {
-    running = false;
-    abort = false;
-    mode = MODE_STANDALONE;
+    this->running = false;
+    this->abort = false;
 }
 
 SmartCore::~SmartCore()
 {
-    printf("Core shutdown...\n");
+    stopProcesses();
 
-    //Stop drive queue
-    if(getDriveQueue() != NULL)
-    {
-        stopQueue(getDriveQueue());
-    }
-
-    //Stop watchdog
-    stopWatchdog();
-
-    //Stop driving
-    AbortDriving();
-
-    //Stop RestInterface
+    //Stop REST Interface
     stopRestInterface();
+
+    //Release server socket
+    releaseSocket(&TCPSocket);
 
     //Stop camera
     closeCamera();
@@ -36,12 +29,58 @@ SmartCore::~SmartCore()
     deinitConfiguration();
 }
 
+//Get singleton instance
+SmartCore* SmartCore::getInstance()
+{
+    if(!smartCore_instance)
+    {
+        smartCore_instance = new SmartCore();
+    }
+
+    return smartCore_instance;
+}
+
 int SmartCore::initialiseCore(int argc, char *argv[])
 {
     int res;
 
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_GREEN);
     printf("Initialising SmartCore...\n");
+
+    //Initialise configuration
+    //Load default configuration
+    AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
+    printf("Load configuration...");
+    res = initConfiguration();
+    if(res > 0)
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_RED);
+        printf("FAIL: initConfiguration() error code %d\n", res);
+
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
+        return 1;
+    }
+
+    //Read configuration if available
+    res = readConfigFile("sc-conf");
+    if(res > 1)
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_RED);
+        printf("FAIL: loadConfigFile() error code %d\n", res);
+
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
+        return 2;
+    }
+    else if(res == 1)
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_YELLOW);
+        printf("WARNING: no configuration file found. loadConfigFile() error code %d\n", res);
+    }
+    else
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_GREEN);
+        printf("OK\n");
+    }
 
     //Initialise drivequeue
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
@@ -53,7 +92,7 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("FAIL: initDriveQueue() error code %d\n", res);
 
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
- //       return 1;
+        return 3;
     }
     else
     {
@@ -71,7 +110,7 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("FAIL: DriveInit() error code %d\n", res);
 
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
-  //      return 2;
+  //      return 4;
     }
     else
     {
@@ -89,13 +128,34 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("FAIL: initRestInterface() error code %d\n", res);
 
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
-  //      return 3;
+        return 5;
     }
     else
     {
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_GREEN);
         printf("OK\n");
     }
+
+    //Initialise serversocket
+    AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
+    printf("Init serversocket...");
+    res = initialiseSocket(&TCPSocket, atoi(getConfigValue(CONFIG_LISTENINGPORT)), SOCKET_TCP);
+    if(res > 1)
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_RED);
+        printf("FAIL: initialiseSocket() error code %d\n", res);
+
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
+        return 6;
+    }
+    else
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_GREEN);
+        printf("OK\n");
+    }
+
+    //Set message received callback
+    setPacketReceivedCallback(&TCPSocket, receivedCommand);
 
     //Initialise camera
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
@@ -107,7 +167,7 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("FAIL: initCamera() error code %d\n", res);
 
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
-  //      return 4;
+  //      return 7;
     }
     else
     {
@@ -130,69 +190,134 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("OK\n");
     }
 
-    //Initialise configuration
-    //Load default configuration
-    AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
-    printf("Load configuration...");
-    res = initConfiguration();
-    if(res > 0)
-    {
-        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_RED);
-        printf("FAIL: initConfiguration() error code %d\n", res);
-
-        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
-        return 5;
-    }
-
-    //Read configuration if available
-    res = readConfigFile("sc-conf");
-    if(res > 1)
-    {
-        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_RED);
-        printf("FAIL: loadConfigFile() error code %d\n", res);
-
-        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
-        return 6;
-    }
-    else if(res == 1)
-    {
-        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_YELLOW);
-        printf("WARNING: no configuration file found. loadConfigFile() error code %d\n", res);
-    }
-    else
-    {
-        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_GREEN);
-        printf("OK\n");
-    }
-
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
     return 0;
 }
 
 int SmartCore::run()
 {
-    running = true;
+    int status = 0;
 
-    while(!abort)
+    this->running = true;
+
+    status = startProcesses();
+
+    if(status > 0)
     {
-        abort = true;
+        printf("Core failed to start system! Error code: %d\n", status);
+
+        //System failed to start processes
+        this->running = false;
+        this->abort = false;
+
+        return status;
     }
 
-    running = false;
-    abort = false;
+    while(!this->abort)
+    {
+        //Program loop
+        _delay_ms(200);
+    }
 
-    return 0;
+    status = stopProcesses();
+
+    this->running = false;
+    this->abort = false;
+
+    return -status;
 }
 
 void SmartCore::stop()
 {
-    if(running)
+    if(this->running)
     {
-        abort = true;
+        this->abort = true;
     }
+}
+
+int SmartCore::startProcesses()
+{
+    if(startQueue(getDriveQueue()) > 0)
+    {
+        //Could not start drive queue
+        return 1;
+    }
+
+    //Start watchdog
+    //startWatchdog();
+
+    //Start server socket
+    startListening(&TCPSocket);
+
+    return 0;
+}
+
+int SmartCore::stopProcesses()
+{
+    //Stop drive queue
+    if(getDriveQueue() != NULL)
+    {
+        stopQueue(getDriveQueue());
+        flushQueue(getDriveQueue());
+
+        //Free memory
+        free(getDriveQueue());
+    }
+
+    //Stop watchdog
+    stopWatchdog();
+
+    //Stop driving
+    AbortDriving();
+
+    //Stop server socket
+    stopListening(&TCPSocket);
+
+    return 0;
 }
 
 bool SmartCore::isRunning()
 {
-    return running;
+    return this->running;
+}
+
+
+
+void* SmartCore::processCommand(char* command)
+{
+    if(strcmp(command, "SCAR: DRIVE ABORT") == 0)
+    {
+        flushQueue(getDriveQueue());
+        AbortDriving();
+    }
+    else if(strcmp(command, "SCAR: DRIVE FOLLOWLINE") == 0)
+    {
+
+    }
+    else if(strcmp(command, "SCAR: DRIVE FORWARD") == 0)
+    {
+
+    }
+    else if(strcmp(command, "SCAR: DRIVE TURN") == 0)
+    {
+
+    }
+    else if(strcmp(command, "SCAR: EXIT") == 0)
+    {
+        this->stop();
+    }
+    else
+    {
+        printf("Received unknown command: %s\n", command);
+    }
+
+    return NULL;
+}
+
+//Wrapper function
+void* receivedCommand(char* command)
+{
+    SmartCore* core = SmartCore::getInstance();
+
+    return core->processCommand(command);
 }

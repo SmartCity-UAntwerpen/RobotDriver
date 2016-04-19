@@ -17,14 +17,14 @@ int startWatchdog(void)
 			_watchdogActive = 0;
 			printf("Error while creating watching thread!\n");
 
-			return -1;
+			return 1;
 		}
 	}
 	else
 	{
 		printf("Watchdog is already running or is not initialized!\n");
 
-		return -1;
+		return 1;
 	}
 
 	return 0;
@@ -52,7 +52,7 @@ int stopWatchdog(void)
 		return 0;
 	}
 
-	return -1;
+	return 1;
 }
 
 void setWatchdogTimeOutCallback(WatchdogTimeOutCallback_t callback)

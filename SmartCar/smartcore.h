@@ -15,30 +15,18 @@
 #include "watchdog.h"
 #include "config.h"
 #include "configfile.h"
+#include "serversocket.h"
+#include "robotapp.h"
 
 namespace SC
 {
-    typedef enum OperationMode
-    {
-        MODE_STANDALONE,
-        MODE_SERVER_VERIFICATION,
-        MODE_SERVER_ROUTE,
-        MODE_SERVER_DIRECTIONS,
-        MODE_MAX
-    } OperationMode;
-
     class SmartCore
     {
         public:
             /*
-             * Default constructor
+             * Get singleton instance
              */
-            SmartCore(void);
-
-            /*
-             * Copy constructor
-             */
-            SmartCore(const SmartCore& core);
+            static SmartCore* getInstance();
 
             /*
              * Destructor
@@ -51,13 +39,37 @@ namespace SC
 
             void stop(void);
 
+
             bool isRunning(void);
 
+            void* processCommand(char* command);
+
         private:
+            static SmartCore* smartCore_instance;
             bool running;
             bool abort;
-            OperationMode mode;
+
+            /*
+             * Default constructor
+             */
+            SmartCore(void);
+
+            /*
+             * Copy constructor
+             */
+            SmartCore(const SmartCore& core);
+
+            /*
+             * Assignment operator
+             */
+            SmartCore& operator=(SmartCore const& core);
+
+            int startProcesses(void);
+
+            int stopProcesses(void);
     };
 }
+
+void* receivedCommand(char* command);
 
 #endif
