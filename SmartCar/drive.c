@@ -20,6 +20,7 @@ static int const MOTOR_R = 1;       // motor right
 static int const MOTOR_L = 2;       // motor left
 static int const SENSOR_R = 1;      // sensor right
 static int const SENSOR_L = 2;      // sensor left
+static int const MAX_SPEED = 100;   // max motor speed
 int cal;                            // calibration difference value
 uint16 iLcal;                       // left sensor calibrated value on drive stroke
 uint16 iRcal;                       // right sensor calibrated value on drive stroke
@@ -216,10 +217,10 @@ void* _DriveStraightDistance(void* args)
     // Delay of 50ms to stabilize sensors and motors
     _delay_ms(50);
 
-    // Safety mechanism: speed limited to maximum 100 mm/s.
-    if(_Speed > 100)
+    // Safety mechanism: speed limited to maximum MAX_SPEED mm/s.
+    if(fabs(_Speed) > MAX_SPEED)
     {
-        _Speed = 100;
+        _Speed = MAX_SPEED;
     }
 
     float totalangle = _Distance/MMPD;               // total turning angle for the wheels
@@ -325,10 +326,10 @@ void* _DriveRotateRWheel(void* args)
     // Delay of 50ms to stabilize sensors and motors
     _delay_ms(50);
 
-    // Safety mechanism: speed limited to maximum 100 mm/s.
-    if(_Speed > 100)
+    // Safety mechanism: speed limited to maximum MAX_SPEED mm/s.
+    if(fabs(_Speed) > MAX_SPEED)
     {
-        _Speed = 100;
+        _Speed = MAX_SPEED;
     }
 
     float rotspeed = (fabs(_Speed)/100)/MMPD;    // Speed /s --> /10ms is dividing by 100  == [degrees / 10 ms]
@@ -432,10 +433,10 @@ void* _DriveRotateLWheel(void* args)
     // Delay of 50ms to stabilize sensors and motors
     _delay_ms(50);
 
-    // Safety mechanism: speed limited to maximum 100 mm/s.
-    if(_Speed > 100)
+    // Safety mechanism: speed limited to maximum MAX_SPEED mm/s.
+    if(fabs(_Speed) > MAX_SPEED)
     {
-        _Speed = 100;
+        _Speed = MAX_SPEED;
     }
 
     float rotspeed = (fabs(_Speed)/100)/MMPD;    // Speed /s --> /10ms is dividing by 100  == [degrees / 10 ms]
@@ -539,10 +540,10 @@ void* _DriveRotateCenter(void* args)
     // Delay of 50ms to stabilize sensors and motors
     _delay_ms(50);
 
-    // Safety mechanism: speed limited to maximum 100 mm/s.
-    if(_Speed > 100)
+    // Safety mechanism: speed limited to maximum MAX_SPEED mm/s.
+    if(fabs(_Speed) > MAX_SPEED)
     {
-        _Speed = 100;
+        _Speed = MAX_SPEED;
     }
 
     float rotspeed = (fabs(_Speed)/100)/MMPD;    // Speed /s --> /10ms is dividing by 100  == [degrees / 10 ms]
@@ -688,10 +689,10 @@ void* _DriveLineFollowDistance(void* args)
     // Delay of 50ms to stabilize sensors and motors
     _delay_ms(50);
 
-    // Safety mechanism: speed limited to maximum 100 mm/s.
-    if(_Speed > 100)
+    // Safety mechanism: speed limited to maximum MAX_SPEED mm/s.
+    if(fabs(_Speed) > MAX_SPEED)
     {
-        _Speed = 100;
+        _Speed = MAX_SPEED;
     }
 
     // init motors
@@ -830,10 +831,10 @@ void* _DriveLineFollow(void* args)
     // Delay of 50ms to stabilize sensors and motors
     _delay_ms(50);
 
-    // Safety mechanism: speed limited to maximum 100 mm/s.
-    if(_Speed > 100)
+    // Safety mechanism: speed limited to maximum MAX_SPEED mm/s.
+    if(fabs(_Speed) > MAX_SPEED)
     {
-        _Speed = 100;
+        _Speed = MAX_SPEED;
     }
 
     // put in PID mode

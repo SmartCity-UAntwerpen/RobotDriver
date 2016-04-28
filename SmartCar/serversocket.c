@@ -234,7 +234,7 @@ void* listeningUDPThread(void* args)
 
 		if(dataLength >= 0)
 		{
-			((socket_t*)args)->packetReceivedCallback(buffer);
+			((socket_t*)args)->packetReceivedCallback(buffer, NULL, 0);
 		}
 		else
 		{
@@ -301,21 +301,23 @@ void* listeningTCPThread(void* args)
 void* handleTCPConnection(void* args)
 {
     int readStatus = 1;
-    char respons[256] = "\0";
+    size_t responseSize;
+    char response[RESPONSE_SIZE] = "\0";
 	char buffer[MESSAGE_SIZE] = "\0";
+
     socket_t* serverSocket = (socket_t*) args;
     int socketConnection = serverSocket->connections;
     char* carName = getConfigValue(CONFIG_CARNAME);
 
     //Send greeting message
-    strcpy(respons, "SmartCity Car: ");
-    strcat(respons, carName);
-    strcat(respons, " - Version: ");
-    strcat(respons, APP_VERSION);
-    strcat(respons, "\r\n# ");
-    respons[31 + strlen(carName) + strlen(APP_VERSION)] = '\0';
+    strcpy(response, "SmartCity Car: ");
+    strcat(response, carName);
+    strcat(response, " - Version: ");
+    strcat(response, APP_VERSION);
+    strcat(response, "\r\n# ");
+    response[31 + strlen(carName) + strlen(APP_VERSION)] = '\0';
 
-	writeLine(socketConnection, respons, strlen(respons));
+	writeLine(socketConnection, response, strlen(response));
 
     while(readStatus && serverSocket->listening)
     {
@@ -323,12 +325,20 @@ void* handleTCPConnection(void* args)
 
         if(readStatus > 0)
         {
-            printf("READSTATUS: %d\n", readStatus);
-            printf("%s", buffer);
+            //Remove newline characters
+            strtok(buffer, "\r\n");
 
-            strcpy(respons, "\n# ");
+            responseSize = serverSocket->packetReceivedCallback(buffer, response, RESPONSE_SIZE);
 
-            writeLine(socketConnection, respons, strlen(respons));
+            #ifdef DEBUG_SOCKET
+            printf("Message: %s - Response: %s\n", buffer, response);
+            #endif
+
+            //Send callback response
+            writeLine(socketConnection, response, responseSize);
+
+            strcpy(response, "\r\n# ");
+            writeLine(socketConnection, response, strlen(response));
         }
         else if(readStatus < 0)
         {

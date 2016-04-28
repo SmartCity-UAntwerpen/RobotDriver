@@ -28,8 +28,8 @@ void* AbortHandler(void *arg)
     while(1)
     {
         _delay_ms(100);
-        //val = GPIOGetIn(24);
-        val = 1;
+        val = GPIOGetIn(24);
+        //val = 1;
         if(!val || AbortRequest)
         {
             pthread_t CurThread = pthread_self();
@@ -106,8 +106,8 @@ int main(int argc, char *argv[])
 
     AnsiCls();
 
-AnsiSetColor(ANSI_ATTR_BLINK,ANSI_BLACK,ANSI_RED);
-printf("ABORT BUTTON HARD CODED TURNED OFF! LINE 30\n");
+//AnsiSetColor(ANSI_ATTR_BLINK,ANSI_BLACK,ANSI_RED);
+//printf("ABORT BUTTON HARD CODED TURNED OFF! LINE 30\n");
 
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
     printBanner();

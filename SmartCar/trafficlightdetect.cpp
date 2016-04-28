@@ -98,4 +98,36 @@ Mat colorBoundry(Mat im, int areaTreshold, bool green, bool red)
     return drawing;
 }
 
+int detectTrafficLight(VideoCapture camera)
+{
+    int areaThreshold = 1150;
+    Mat frame, boundryImage, mergedImage, hsv, binary, binaryOne, binaryTwo, tempImage;
+    bool green = false;
+    bool red = false;
 
+    if(!camera.isOpened())
+    {
+        //Camera is not initialised
+        return -1;
+    }
+
+    //Get a new frame from the camera
+    camera >> frame;
+
+    mergedImage = HSVmergedImage(frame, hsv, binary, binaryOne, binaryTwo, tempImage);
+
+    boundryImage = colorBoundry(mergedImage, areaThreshold, green, red);
+
+    if(red)
+    {
+        return TRAFFICLIGHT_RED;
+    }
+    else if(green)
+    {
+        return TRAFFICLIGHT_GREEN;
+    }
+    else
+    {
+        return TRAFFICLIGHT_NONE;
+    }
+}

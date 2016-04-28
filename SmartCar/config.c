@@ -57,11 +57,15 @@ int deinitConfiguration(void)
         if(configuration[i].key != NULL)
         {
             free(configuration[i].key);
+
+            configuration[i].key = NULL;
         }
 
         if(configuration[i].value != NULL)
         {
             free(configuration[i].value);
+
+            configuration[i].value = NULL;
         }
     }
 

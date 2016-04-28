@@ -39,10 +39,11 @@ namespace SC
 
             void stop(void);
 
-
             bool isRunning(void);
 
-            void* processCommand(char* command);
+            size_t processCommand(char* command, char* response, size_t maxLength);
+
+            size_t processDriveCommand(char* command, char* response, size_t maxLength);
 
         private:
             static SmartCore* smartCore_instance;
@@ -70,6 +71,6 @@ namespace SC
     };
 }
 
-void* receivedCommand(char* command);
+size_t receivedCommand(char* command, char* response, size_t maxLength);
 
 #endif

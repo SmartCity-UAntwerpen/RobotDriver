@@ -111,13 +111,13 @@ int httpPost(char const* url, char const* data, char const* header, char* errMes
 
     if(errMessage != NULL)
     {
-        //Write respons into errMessage
+        //Write response into errMessage
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, errMessage);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeData);
     }
     else
     {
-        //Suppress server respons in console
+        //Suppress server response in console
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, silentOutput);
     }
 

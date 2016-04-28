@@ -12,6 +12,8 @@
 
 int initDriveQueue(void);
 
+int deinitDriveQueue(void);
+
 msgqueue_t* getDriveQueue(void);
 
 void* _processDriveMessage(void* args);

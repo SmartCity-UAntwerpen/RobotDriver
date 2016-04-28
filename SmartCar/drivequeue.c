@@ -29,6 +29,31 @@ int initDriveQueue(void)
     }
 }
 
+int deinitDriveQueue(void)
+{
+    if(driveQueue == NULL)
+    {
+        //Drive queue is not initialised
+        return 1;
+    }
+
+    if(driveQueue->queueActiveFlag == true)
+    {
+        //Can not destroy drive queue while active
+        return 2;
+    }
+
+    //Flush all queue elements
+    flushQueue(driveQueue);
+
+    //Free memory of drive queueu
+    free(driveQueue);
+
+    driveQueue = NULL;
+
+    return 0;
+}
+
 msgqueue_t* getDriveQueue(void)
 {
     return driveQueue;
@@ -68,7 +93,7 @@ void* _processDriveMessage(void* args)
             _startNextActivity(msgPointer);
 
             //Free message
-            free(msgPointer);
+            freeMsg(msgPointer);
         }
 
         msgPointer = NULL;
@@ -81,16 +106,37 @@ void* _processDriveMessage(void* args)
 
 int _startNextActivity(struct msg_t* message)
 {
+    int dist_angle = 0;
+
     switch(message->id)
     {
-        case DRIVE_STRAIGHT:
+        case DRIVE_FOLLOWLINE:
             return DriveLineFollow(80);
-        case DRIVE_D_STRAIGHT:
-            return DriveLineFollowDistance(120, 80);
-        case DRIVE_RIGHT:
+        case DRIVE_FOLLOWLINE_DISTANCE:
+            dist_angle = ((int*)message->values)[0];
+            return DriveLineFollowDistance(dist_angle, 80);
+        case DRIVE_STRAIGHT_DISTANCE:
+            dist_angle = ((int*)message->values)[0];
+            return DriveStraightDistance(dist_angle, 80);
+        case DRIVE_BACKWARDS_DISTANCE:
+            dist_angle = ((int*)message->values)[0];
+            return DriveStraightDistance(-dist_angle, 80);
+        case DRIVE_TURN_RIGHT:
             return DriveRotateLWheel(90, 70);
-        case DRIVE_LEFT:
+        case DRIVE_ANGLE_RIGHT:
+            dist_angle = ((int*)message->values)[0];
+            return DriveRotateLWheel(dist_angle, 70);
+        case DRIVE_ROTATE_RIGHT:
+            dist_angle = ((int*)message->values)[0];
+            return DriveRotateCenter(dist_angle, 80);
+        case DRIVE_TURN_LEFT:
             return DriveRotateRWheel(90, 70);
+        case DRIVE_ANGLE_LEFT:
+            dist_angle = ((int*)message->values)[0];
+            return DriveRotateRWheel(dist_angle, 70);
+        case DRIVE_ROTATE_LEFT:
+            dist_angle = ((int*)message->values)[0];
+            return DriveRotateCenter(-dist_angle, 80);
         default:
             printf("Command id: %d unknown!", message->id);
             return -1;

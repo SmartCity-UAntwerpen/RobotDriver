@@ -258,10 +258,8 @@ int SmartCore::stopProcesses()
     if(getDriveQueue() != NULL)
     {
         stopQueue(getDriveQueue());
-        flushQueue(getDriveQueue());
 
-        //Free memory
-        free(getDriveQueue());
+        deinitDriveQueue();
     }
 
     //Stop watchdog
@@ -281,43 +279,294 @@ bool SmartCore::isRunning()
     return this->running;
 }
 
-
-
-void* SmartCore::processCommand(char* command)
+size_t SmartCore::processCommand(char* command, char* response, size_t maxLength)
 {
-    if(strcmp(command, "SCAR: DRIVE ABORT") == 0)
-    {
-        flushQueue(getDriveQueue());
-        AbortDriving();
-    }
-    else if(strcmp(command, "SCAR: DRIVE FOLLOWLINE") == 0)
-    {
+    char const* functionResponse;
 
-    }
-    else if(strcmp(command, "SCAR: DRIVE FORWARD") == 0)
+    if(strncmp(command, "DRIVE", 5) == 0)
     {
-
+        //Drive commands
+        return processDriveCommand(command, response, maxLength);
     }
-    else if(strcmp(command, "SCAR: DRIVE TURN") == 0)
+    else if(strcmp(command, "SHUTDOWN") == 0)
     {
-
-    }
-    else if(strcmp(command, "SCAR: EXIT") == 0)
-    {
+        //Shutdown command
         this->stop();
+
+        functionResponse = "ACK";
+    }
+    else if(strcmp(command, "HELP") == 0 || strcmp(command, "?") == 0)
+    {
+        //Help command
+        functionResponse = "KNOWN COMMANDS: DRIVE [ABORT, FLUSH, FOLLOWLINE, PAUSE, RESUME, FORWARD, BACKWARDS, TURN, ROTATE], SHUTDOWN, HELP";
     }
     else
     {
-        printf("Received unknown command: %s\n", command);
+        functionResponse = "UNKNOWN COMMAND";
     }
 
-    return NULL;
+    if(response != NULL)
+    {
+        if(strlen(functionResponse) + 1 >= maxLength)
+        {
+            strncpy(response, functionResponse, maxLength - 2);
+            response[maxLength - 1] = '\0';
+        }
+        else
+        {
+            strcpy(response, functionResponse);
+            response[strlen(functionResponse)] = '\0';
+        }
+
+        return strlen(response);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+size_t SmartCore::processDriveCommand(char* command, char* response, size_t maxLength)
+{
+    msg_t* message;
+    char const* functionResponse;
+
+    if(strcmp(command, "DRIVE ABORT") == 0)
+    {
+        flushQueue(getDriveQueue());
+        AbortDriving();
+
+        functionResponse = "ACK";
+    }
+    else if(strcmp(command, "DRIVE FLUSH") == 0)
+    {
+        flushQueue(getDriveQueue());
+
+        functionResponse = "ACK";
+    }
+    else if(strncmp(command, "DRIVE FOLLOWLINE", 16) == 0)
+    {
+        int distValue = 0;
+        int* msgValues;
+
+        message = (struct msg_t*) malloc (sizeof(struct msg_t));
+
+        message->Next = NULL;
+
+        if(strlen(command) > 17)
+        {
+            //Follow line for given distance
+            message->id = DRIVE_FOLLOWLINE_DISTANCE;
+            message->numOfParm = 1;
+
+            msgValues = (int*) malloc (sizeof(int));
+
+            distValue = atoi(&command[17]);
+
+            memcpy(msgValues, &distValue, sizeof(int));
+            message->values = msgValues;
+        }
+        else
+        {
+            //Follow line until end of line
+            message->id = DRIVE_FOLLOWLINE;
+            message->numOfParm = 0;
+            message->values = NULL;
+        }
+
+        addMsg(getDriveQueue(), message);
+
+        functionResponse = "ACK";
+    }
+    else if(strcmp(command, "DRIVE PAUSE") == 0)
+    {
+        pauseDriving();
+
+        functionResponse = "ACK";
+    }
+    else if(strcmp(command, "DRIVE RESUME") == 0)
+    {
+        continueDriving();
+
+        functionResponse = "ACK";
+    }
+    else if(strncmp(command, "DRIVE FORWARD", 13) == 0)
+    {
+        int distanceValue = 0;
+        int* msgValues;
+
+        if(strlen(command) > 14)
+        {
+            message = (struct msg_t*) malloc (sizeof(struct msg_t));
+            msgValues = (int*) malloc (sizeof(int));
+
+            message->id = DRIVE_STRAIGHT_DISTANCE;
+            message->numOfParm = 1;
+            message->Next = NULL;
+
+            distanceValue = atoi(&command[14]);
+
+            memcpy(msgValues, &distanceValue, sizeof(int));
+            message->values = msgValues;
+
+            addMsg(getDriveQueue(), message);
+
+            functionResponse = "ACK";
+        }
+        else
+        {
+            functionResponse = "MALFORMED COMMAND";
+        }
+    }
+    else if(strncmp(command, "DRIVE BACKWARDS", 15) == 0)
+    {
+        int distanceValue = 0;
+        int* msgValues;
+
+        if(strlen(command) > 16)
+        {
+            message = (struct msg_t*) malloc (sizeof(struct msg_t));
+            msgValues = (int*) malloc (sizeof(int));
+
+            message->id = DRIVE_BACKWARDS_DISTANCE;
+            message->numOfParm = 1;
+            message->Next = NULL;
+
+            distanceValue = atoi(&command[16]);
+
+            memcpy(msgValues, &distanceValue, sizeof(int));
+            message->values = msgValues;
+
+            addMsg(getDriveQueue(), message);
+
+            functionResponse = "ACK";
+        }
+        else
+        {
+            functionResponse = "MALFORMED COMMAND";
+        }
+    }
+    else if(strncmp(command, "DRIVE TURN", 10) == 0)
+    {
+        msg_id_drive direction;
+        int* msgValues;
+
+        if(command[11] == 'L')
+        {
+            //Turn left
+            direction = DRIVE_ANGLE_LEFT;
+        }
+        else if(command[11] == 'R')
+        {
+            //Turn right
+            direction = DRIVE_ANGLE_RIGHT;
+        }
+        else
+        {
+            //Unknown command
+            direction = MSG_ID_DRIVE_TOTAL;
+            functionResponse = "MALFORMED COMMAND";
+        }
+
+        if(direction < MSG_ID_DRIVE_TOTAL)
+        {
+            int angleValue = 0;
+            message = (struct msg_t*) malloc (sizeof(struct msg_t));
+            msgValues = (int*) malloc (sizeof(int));
+
+            message->id = direction;
+            message->numOfParm = 1;
+            message->Next = NULL;
+
+            if(strlen(command) > 13)
+            {
+                angleValue = atoi(&command[13]);
+            }
+            else
+            {
+                angleValue = 90;
+            }
+
+            memcpy(msgValues, &angleValue, sizeof(int));
+            message->values = msgValues;
+
+            addMsg(getDriveQueue(), message);
+
+            functionResponse = "ACK";
+        }
+    }
+    else if(strncmp(command, "DRIVE ROTATE", 12) == 0)
+    {
+        msg_id_drive direction;
+        int* msgValues;
+
+        if(command[13] == 'L')
+        {
+            //Rotate left
+            direction = DRIVE_ROTATE_LEFT;
+        }
+        else if(command[13] == 'R')
+        {
+            //Rotate right
+            direction = DRIVE_ROTATE_RIGHT;
+        }
+        else
+        {
+            //Unknown command
+            direction = MSG_ID_DRIVE_TOTAL;
+            functionResponse = "MALFORMED COMMAND";
+        }
+
+        if(direction < MSG_ID_DRIVE_TOTAL && strlen(command) > 15)
+        {
+            int angleValue = 0;
+            message = (struct msg_t*) malloc (sizeof(struct msg_t));
+            msgValues = (int*) malloc (sizeof(int));
+
+            message->id = direction;
+            message->numOfParm = 1;
+            message->Next = NULL;
+
+            angleValue = atoi(&command[15]);
+
+            memcpy(msgValues, &angleValue, sizeof(int));
+            message->values = msgValues;
+
+            addMsg(getDriveQueue(), message);
+
+            functionResponse = "ACK";
+        }
+    }
+    else
+    {
+        functionResponse = "UNKNOWN COMMAND";
+    }
+
+    if(response != NULL)
+    {
+        if(strlen(functionResponse) + 1 >= maxLength)
+        {
+            strncpy(response, functionResponse, maxLength - 2);
+            response[maxLength - 1] = '\0';
+        }
+        else
+        {
+            strcpy(response, functionResponse);
+            response[strlen(functionResponse)] = '\0';
+        }
+
+        return strlen(response);
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 //Wrapper function
-void* receivedCommand(char* command)
+size_t receivedCommand(char* command, char* response, size_t maxLength)
 {
     SmartCore* core = SmartCore::getInstance();
 
-    return core->processCommand(command);
+    return core->processCommand(command, response, maxLength);
 }

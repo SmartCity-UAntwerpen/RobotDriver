@@ -50,7 +50,7 @@ int flushQueue(msgqueue_t* msgqueue)
         msgqueue->queuePointer = msgqueue->queuePointer->Next;
 
         //Free msgPointer
-        free(msgPointer);
+        freeMsg(msgPointer);
     }
 
     pthread_mutex_unlock(&msgqueue->queueLock);
@@ -83,6 +83,26 @@ int addMsg(msgqueue_t* msgqueue, msg_t* message)
     }
 
     pthread_mutex_unlock(&msgqueue->queueLock);
+
+    return 0;
+}
+
+int freeMsg(msg_t* message)
+{
+    if(message == NULL)
+    {
+        //No message to free
+        return 1;
+    }
+
+    if(message->values != NULL)
+    {
+        //Free message values
+        free(message->values);
+    }
+
+    //Free message
+    free(message);
 
     return 0;
 }

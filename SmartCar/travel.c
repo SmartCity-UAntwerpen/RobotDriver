@@ -2,6 +2,8 @@
 
 int Travel(NodeStruct* Map, int MapSize, int Start, int Finish, float Speed)
 {
+    int distanceValue = 0;
+    char* msgValue;
     bool hasNext = true;
     int previousPoint = Start;
 
@@ -29,19 +31,26 @@ int Travel(NodeStruct* Map, int MapSize, int Start, int Finish, float Speed)
         {
             case 1:
                 printf("Turn left\n");
-                turnMsg->id = DRIVE_LEFT;         //Turn left
+                turnMsg->id = DRIVE_TURN_LEFT;           //Turn left
                 break;
             case 2:
                 printf("Crossing intersection\n");
-                turnMsg->id = DRIVE_D_STRAIGHT;   //Straight forward
+                turnMsg->id = DRIVE_STRAIGHT_DISTANCE;   //Straight forward
+                turnMsg->numOfParm = 1;
+
+                distanceValue = 120;
+                msgValue = (char*) malloc (1);
+                memcpy(msgValue, &distanceValue, 1);
+
+                turnMsg->values = msgValue;
                 break;
             case 3:
                 printf("Turn right\n");
-                turnMsg->id = DRIVE_RIGHT;        //Turn right
+                turnMsg->id = DRIVE_TURN_RIGHT;          //Turn right
                 break;
         }
 
-        driveMsg->id = DRIVE_STRAIGHT;
+        driveMsg->id = DRIVE_FOLLOWLINE;
         driveMsg->numOfParm = 0;
         driveMsg->values = NULL;
         driveMsg->Next = NULL;

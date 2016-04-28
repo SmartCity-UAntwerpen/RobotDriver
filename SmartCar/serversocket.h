@@ -22,12 +22,13 @@
 #endif
 
 #define MESSAGE_SIZE 1024
+#define RESPONSE_SIZE 256
 #define MAX_CLIENTCONNECTIONS 2
 
 /**
  * @brief callback type for the command PacketReceived
  */
-typedef void *PacketReceivedCallback_t(char* message);
+typedef size_t PacketReceivedCallback_t(char* message, char* response, size_t maxLength);
 
 typedef enum socket_mode
 {

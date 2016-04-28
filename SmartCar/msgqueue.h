@@ -18,7 +18,7 @@ typedef struct msg_t
     int type;
     int id;
     int numOfParm;
-    int* values;
+    void* values;
     struct msg_t *Next;
 } msg_t;
 
@@ -31,10 +31,16 @@ typedef enum msg_type
 typedef enum msg_id_drive
 {
     ABORT,
-    DRIVE_STRAIGHT,
-    DRIVE_D_STRAIGHT,
-    DRIVE_RIGHT,
-    DRIVE_LEFT,
+    DRIVE_FOLLOWLINE,
+    DRIVE_FOLLOWLINE_DISTANCE,
+    DRIVE_STRAIGHT_DISTANCE,
+    DRIVE_BACKWARDS_DISTANCE,
+    DRIVE_TURN_RIGHT,
+    DRIVE_ANGLE_RIGHT,
+    DRIVE_TURN_LEFT,
+    DRIVE_ANGLE_LEFT,
+    DRIVE_ROTATE_RIGHT,
+    DRIVE_ROTATE_LEFT,
     MSG_ID_DRIVE_TOTAL
 } msg_id_drive;
 
@@ -52,6 +58,7 @@ int startQueue(msgqueue_t* msgqueue);
 int stopQueue(msgqueue_t* msgqueue);
 int flushQueue(msgqueue_t* msgqueue);
 int addMsg(msgqueue_t* msgqueue, msg_t* message);
+int freeMsg(msg_t* message);
 
 #ifdef __cplusplus		//Check if the compiler is C++
 	}		//End the extern "C" bracket
