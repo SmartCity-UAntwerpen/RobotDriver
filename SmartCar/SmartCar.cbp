@@ -93,6 +93,14 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="drivequeue.h" />
+		<Unit filename="eventgenerator.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="eventgenerator.h" />
+		<Unit filename="eventpublisher.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="eventpublisher.h" />
 		<Unit filename="json.c">
 			<Option compilerVar="CC" />
 		</Unit>

@@ -5,6 +5,8 @@ static pthread_mutex_t queueLock;
 
 static struct msgqueue_t* driveQueue;
 
+static driveFinishedCallback_t* driveFinishedCallback;
+
 int initDriveQueue(void)
 {
     //Allocated message queue struct
@@ -12,7 +14,7 @@ int initDriveQueue(void)
 
     if(driveQueue != NULL)
     {
-        //Initialize parameters
+        //Initialise parameters
         driveQueue->processMessage = (processMessageFunction) _processDriveMessage;
         driveQueue->queueActiveFlag = false;
         driveQueue->queueLock = queueLock;
@@ -46,12 +48,17 @@ int deinitDriveQueue(void)
     //Flush all queue elements
     flushQueue(driveQueue);
 
-    //Free memory of drive queueu
+    //Free memory of drive queue
     free(driveQueue);
 
     driveQueue = NULL;
 
     return 0;
+}
+
+void setDriveFinishedCallback(driveFinishedCallback_t callback)
+{
+    driveFinishedCallback = callback;
 }
 
 msgqueue_t* getDriveQueue(void)
@@ -73,19 +80,18 @@ void* _processDriveMessage(void* args)
         {
             //Wait for drivethread to finish
             WaitForDriving();
+
+            //Signal driving finished
+            if(driveFinishedCallback != NULL)
+            {
+                driveFinishedCallback(NULL);
+            }
         }
 
-        pthread_mutex_lock(&driveQueue->queueLock);
-
-        if(driveQueue->queuePointer != NULL && driveQueue->queueActiveFlag)
+        if(!queueIsEmpty(driveQueue) && driveQueue->queueActiveFlag)
         {
-            msgPointer = driveQueue->queuePointer;
-
-            //Remove message from queue
-            driveQueue->queuePointer = driveQueue->queuePointer->Next;
+            msgPointer = getNextMsg(driveQueue);
         }
-
-        pthread_mutex_unlock(&driveQueue->queueLock);
 
         if(msgPointer != NULL)
         {

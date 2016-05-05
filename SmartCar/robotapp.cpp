@@ -4,6 +4,8 @@ pthread_t commThread;
 
 void RobotApp(int argc, char *argv[])
 {
+    setSpeakerMute(true);
+
     SC::SmartCore* smartCore;
 
     //Initialise system

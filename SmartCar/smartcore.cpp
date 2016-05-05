@@ -19,8 +19,9 @@ SmartCore::~SmartCore()
     //Stop REST Interface
     stopRestInterface();
 
-    //Release server socket
-    releaseSocket(&TCPSocket);
+    //Release server sockets
+    releaseSocket(&TCP_TaskSocket);
+    releaseSocket(&TCP_EventSocket);
 
     //Stop camera
     closeCamera();
@@ -100,6 +101,9 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("OK\n");
     }
 
+    //Set event callback
+    setDriveFinishedCallback(driveFinishedEvent);
+
     //Setup motordrivers
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
     printf("Init motordrivers...");
@@ -118,14 +122,14 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("OK\n");
     }
 
-    //Intialise restinterface
+    //Initialise event publisher
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
-    printf("Init REST-controller...");
-    res = initRestInterface();
-    if(res > 1)
+    printf("Init event publisher...");
+    res = initEventPublisher();
+    if(res > 0)
     {
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_RED);
-        printf("FAIL: initRestInterface() error code %d\n", res);
+        printf("FAIL: initEventPublisher() error code %d\n", res);
 
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
         return 5;
@@ -136,14 +140,14 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("OK\n");
     }
 
-    //Initialise serversocket
+    //Intialise restinterface
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
-    printf("Init serversocket...");
-    res = initialiseSocket(&TCPSocket, atoi(getConfigValue(CONFIG_LISTENINGPORT)), SOCKET_TCP);
+    printf("Init REST-controller...");
+    res = initRestInterface();
     if(res > 1)
     {
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_RED);
-        printf("FAIL: initialiseSocket() error code %d\n", res);
+        printf("FAIL: initRestInterface() error code %d\n", res);
 
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
         return 6;
@@ -154,8 +158,50 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("OK\n");
     }
 
+    //Initialise serversockets
+    //Task serversocket
+    AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
+    printf("Init task serversocket...");
+    res = initialiseSocket(&TCP_TaskSocket, atoi(getConfigValue(CONFIG_LISTENINGPORT)), SOCKET_TCP);
+    if(res > 1)
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_RED);
+        printf("FAIL: initialiseSocket() error code %d\n", res);
+
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
+        return 7;
+    }
+    else
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_GREEN);
+        printf("OK\n");
+    }
+
     //Set message received callback
-    setPacketReceivedCallback(&TCPSocket, receivedCommand);
+    setPacketReceivedCallback(&TCP_TaskSocket, receivedCommand);
+    setConnectionHandleCallback(&TCP_TaskSocket, handleTaskTCPConnection);
+
+    //Event serversocket
+    AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
+    printf("Init event serversocket...");
+    res = initialiseSocket(&TCP_EventSocket, atoi(getConfigValue(CONFIG_PUBLISHPORT)), SOCKET_TCP);
+    if(res > 1)
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_RED);
+        printf("FAIL: initialiseSocket() error code %d\n", res);
+
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
+        return 8;
+    }
+    else
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_GREEN);
+        printf("OK\n");
+    }
+
+    //Set message received callback
+    setPacketReceivedCallback(&TCP_EventSocket, receivedCommand);
+    setConnectionHandleCallback(&TCP_EventSocket, handleEventTCPConnection);
 
     //Initialise camera
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
@@ -167,7 +213,7 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("FAIL: initCamera() error code %d\n", res);
 
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
-  //      return 7;
+  //      return 9;
     }
     else
     {
@@ -246,8 +292,9 @@ int SmartCore::startProcesses()
     //Start watchdog
     //startWatchdog();
 
-    //Start server socket
-    startListening(&TCPSocket);
+    //Start server sockets
+    startListening(&TCP_TaskSocket);
+    startListening(&TCP_EventSocket);
 
     return 0;
 }
@@ -268,8 +315,9 @@ int SmartCore::stopProcesses()
     //Stop driving
     AbortDriving();
 
-    //Stop server socket
-    stopListening(&TCPSocket);
+    //Stop server sockets
+    stopListening(&TCP_TaskSocket);
+    stopListening(&TCP_EventSocket);
 
     return 0;
 }

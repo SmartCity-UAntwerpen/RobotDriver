@@ -13,8 +13,16 @@ int initConfiguration(void)
         return 1;
     }
 
-    //Config Socket port
-    if(_initConfigPair(CONFIG_LISTENINGPORT, "port", "1313") > 0)
+    //Config Task Socket Port
+    if(_initConfigPair(CONFIG_LISTENINGPORT, "listeningport", "1313") > 0)
+    {
+        printf("Could not allocate memory for configuration!\n");
+
+        return 1;
+    }
+
+    //Config Event Socket Port
+    if(_initConfigPair(CONFIG_PUBLISHPORT, "publishport", "1314") > 0)
     {
         printf("Could not allocate memory for configuration!\n");
 

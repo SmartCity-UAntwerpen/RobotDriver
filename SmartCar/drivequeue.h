@@ -10,9 +10,13 @@
 	{
 #endif
 
+typedef void* driveFinishedCallback_t(void* args);
+
 int initDriveQueue(void);
 
 int deinitDriveQueue(void);
+
+void setDriveFinishedCallback(driveFinishedCallback_t callback);
 
 msgqueue_t* getDriveQueue(void);
 

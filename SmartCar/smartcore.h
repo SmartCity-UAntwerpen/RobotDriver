@@ -16,6 +16,7 @@
 #include "config.h"
 #include "configfile.h"
 #include "serversocket.h"
+#include "eventgenerator.h"
 #include "robotapp.h"
 
 namespace SC

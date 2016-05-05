@@ -25,6 +25,7 @@ typedef struct msg_t
 typedef enum msg_type
 {
     DRIVE_MSG,
+    EVENT_MSG,
     MSG_TYPE_TOTAL
 } msg_type;
 
@@ -44,6 +45,13 @@ typedef enum msg_id_drive
     MSG_ID_DRIVE_TOTAL
 } msg_id_drive;
 
+typedef enum msg_id_event
+{
+    EVENT_DRIVE_FINISHED,
+    EVENT_TRAFFICLIGHT_DETECTION,
+    MSG_ID_EVENT_TOTAL
+} msg_id_event;
+
 typedef struct msgqueue_t
 {
     pthread_t queueThread;
@@ -58,6 +66,8 @@ int startQueue(msgqueue_t* msgqueue);
 int stopQueue(msgqueue_t* msgqueue);
 int flushQueue(msgqueue_t* msgqueue);
 int addMsg(msgqueue_t* msgqueue, msg_t* message);
+bool queueIsEmpty(msgqueue_t* msgqueue);
+msg_t* getNextMsg(msgqueue_t* msgqueue);
 int freeMsg(msg_t* message);
 
 #ifdef __cplusplus		//Check if the compiler is C++

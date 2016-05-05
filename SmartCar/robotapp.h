@@ -51,7 +51,8 @@ extern LegoSensorStruct LegoSensor;
 extern RfCC1101Struct RfCC1101;
 extern PwrLiIon1AStruct PwrLiIion1A;
 extern ImuStruct Imu;
-extern socket_t TCPSocket;
+extern socket_t TCP_TaskSocket;
+extern socket_t TCP_EventSocket;
 
 void RobotApp(int argc, char *argv[]);
 

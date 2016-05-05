@@ -14,7 +14,8 @@ LegoSensorStruct LegoSensor;
 RfCC1101Struct RfCC1101;
 PwrLiIon1AStruct PwrLiIion1A;
 ImuStruct Imu;
-socket_t TCPSocket;
+socket_t TCP_TaskSocket;
+socket_t TCP_EventSocket;
 
 pthread_t AbortThread;
 static uint8 AbortRequest=0;
@@ -66,9 +67,12 @@ void* AbortHandler(void *arg)
             res=stopRestInterface();
             if(res>0) printf("Abort handler: Closing REST interface failed.\n");
             printf("7\n");
-            stopListening(&TCPSocket);
-            res=releaseSocket(&TCPSocket);
-            if(res>0) printf("Abort handler: Closing TCP socket failed.\n");
+            stopListening(&TCP_TaskSocket);
+            res=releaseSocket(&TCP_TaskSocket);
+            if(res>0) printf("Abort handler: Closing TCP task socket failed.\n");
+            stopListening(&TCP_EventSocket);
+            res=releaseSocket(&TCP_EventSocket);
+            if(res>0) printf("Abort handler: Closing TCP event socket failed.\n");
             printf("8\n");
             res=RS485ClientDeinit(&RS485Client);
             if(res>0) printf("Abort handler: RS485ClientDeinit() fail.\n");
@@ -106,8 +110,8 @@ int main(int argc, char *argv[])
 
     AnsiCls();
 
-//AnsiSetColor(ANSI_ATTR_BLINK,ANSI_BLACK,ANSI_RED);
-//printf("ABORT BUTTON HARD CODED TURNED OFF! LINE 30\n");
+AnsiSetColor(ANSI_ATTR_BLINK,ANSI_BLACK,ANSI_RED);
+printf("ABORT BUTTON HARD CODED TURNED OFF! LINE 30\n");
 
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
     printBanner();
