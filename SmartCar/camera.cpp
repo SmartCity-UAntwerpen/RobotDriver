@@ -23,8 +23,17 @@ int initCamera(int cam)
 
     if(!cap.isOpened())
     {
-        //Camera will not open (camera not connected?)
-        return 2;
+        //Try to install the V4L2-drivers into Linux kernel
+        system("sudo modprobe bcm2835-v4l2 2>/dev/null");
+
+        //Retry opening camera with param index: cam
+        cap.open(cam);
+
+        if(!cap.isOpened())
+        {
+            //Camera will not open (camera not connected?)
+            return 2;
+        }
     }
 
     //Set camera frame size

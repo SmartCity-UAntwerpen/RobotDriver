@@ -21,6 +21,8 @@
 */
 void espeak(char const* message);
 
+void playWav(char const* file);
+
 int stopSpeaker(void);
 
 int _playSpeakerCommand(char* speakerCommand);

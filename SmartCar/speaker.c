@@ -21,6 +21,24 @@ void espeak(char const* message)
     }
 }
 
+void playWav(char const* file)
+{
+    char command[158];
+    char lim_fileName[128];
+
+    if(!_speakerMute)
+    {
+        //Filename limited to 128 characters
+        strncpy(lim_fileName, file, 128);
+        lim_fileName[128] = '\0';
+
+        //Create audio command
+        sprintf(command, "aplay \"audio/%s.wav\" 2>/dev/null", lim_fileName);
+
+        _playSpeakerCommand(command);
+    }
+}
+
 int stopSpeaker(void)
 {
     if(speakerPlaying())

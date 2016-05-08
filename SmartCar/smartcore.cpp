@@ -140,6 +140,24 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("OK\n");
     }
 
+    //Initialise process modules
+    AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
+    printf("Init process modules...");
+    res = initProcessModules();
+    if(res > 1)
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_RED);
+        printf("FAIL: initProcessModules() error code %d\n", res);
+
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
+        return 6;
+    }
+    else
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_GREEN);
+        printf("OK\n");
+    }
+
     //Intialise restinterface
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
     printf("Init REST-controller...");
@@ -150,7 +168,7 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("FAIL: initRestInterface() error code %d\n", res);
 
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
-        return 6;
+        return 7;
     }
     else
     {
@@ -169,7 +187,7 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("FAIL: initialiseSocket() error code %d\n", res);
 
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
-        return 7;
+        return 8;
     }
     else
     {
@@ -191,7 +209,7 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("FAIL: initialiseSocket() error code %d\n", res);
 
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
-        return 8;
+        return 9;
     }
     else
     {
@@ -213,7 +231,7 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("FAIL: initCamera() error code %d\n", res);
 
         AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
-  //      return 9;
+  //      return 10;
     }
     else
     {
@@ -315,6 +333,9 @@ int SmartCore::stopProcesses()
     //Stop driving
     AbortDriving();
 
+    //Stop process modules
+    stopProcessModules();
+
     //Stop server sockets
     stopListening(&TCP_TaskSocket);
     stopListening(&TCP_EventSocket);
@@ -336,6 +357,21 @@ size_t SmartCore::processCommand(char* command, char* response, size_t maxLength
         //Drive commands
         return processDriveCommand(command, response, maxLength);
     }
+    else if(strncmp(command, "CAMERA", 6) == 0)
+    {
+        //Camera commands
+        return processCameraCommand(command, response, maxLength);
+    }
+    else if(strncmp(command, "TAG", 3) == 0)
+    {
+        //Tag commands
+        return processTagCommand(command, response, maxLength);
+    }
+    else if(strncmp(command, "SPEAKER", 7) == 0)
+    {
+        //Speaker commands
+        return processSpeakerCommand(command, response, maxLength);
+    }
     else if(strcmp(command, "SHUTDOWN") == 0)
     {
         //Shutdown command
@@ -346,7 +382,7 @@ size_t SmartCore::processCommand(char* command, char* response, size_t maxLength
     else if(strcmp(command, "HELP") == 0 || strcmp(command, "?") == 0)
     {
         //Help command
-        functionResponse = "KNOWN COMMANDS: DRIVE [ABORT, FLUSH, FOLLOWLINE, PAUSE, RESUME, FORWARD, BACKWARDS, TURN, ROTATE], SHUTDOWN, HELP";
+        functionResponse = "KNOWN COMMANDS: DRIVE [ABORT, FLUSH, FOLLOWLINE, PAUSE, RESUME, FORWARD, BACKWARDS, TURN, ROTATE], CAMERA [TRAFFICLIGHT], TAG [READ UID], SPEAKER [MUTE, UNMUTE, PLAY, SAY, STOP], SHUTDOWN, HELP";
     }
     else
     {
@@ -584,6 +620,148 @@ size_t SmartCore::processDriveCommand(char* command, char* response, size_t maxL
 
             functionResponse = "ACK";
         }
+    }
+    else
+    {
+        functionResponse = "UNKNOWN COMMAND";
+    }
+
+    if(response != NULL)
+    {
+        if(strlen(functionResponse) + 1 >= maxLength)
+        {
+            strncpy(response, functionResponse, maxLength - 2);
+            response[maxLength - 1] = '\0';
+        }
+        else
+        {
+            strcpy(response, functionResponse);
+            response[strlen(functionResponse)] = '\0';
+        }
+
+        return strlen(response);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+size_t SmartCore::processCameraCommand(char* command, char* response, size_t maxLength)
+{
+    char const* functionResponse;
+
+    if(strcmp(command, "CAMERA TRAFFICLIGHT") == 0)
+    {
+        if(startTrafficLightDetection() == 0)
+        {
+            functionResponse = "ACK";
+        }
+        else
+        {
+            functionResponse = "NACK";
+        }
+    }
+    else
+    {
+        functionResponse = "UNKNOWN COMMAND";
+    }
+
+    if(response != NULL)
+    {
+        if(strlen(functionResponse) + 1 >= maxLength)
+        {
+            strncpy(response, functionResponse, maxLength - 2);
+            response[maxLength - 1] = '\0';
+        }
+        else
+        {
+            strcpy(response, functionResponse);
+            response[strlen(functionResponse)] = '\0';
+        }
+
+        return strlen(response);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+size_t SmartCore::processTagCommand(char* command, char* response, size_t maxLength)
+{
+    char const* functionResponse;
+
+    if(strcmp(command, "TAG READ UID") == 0)
+    {
+        if(startReadTagUID() == 0)
+        {
+            functionResponse = "ACK";
+        }
+        else
+        {
+            functionResponse = "NACK";
+        }
+    }
+    else
+    {
+        functionResponse = "UNKNOWN COMMAND";
+    }
+
+    if(response != NULL)
+    {
+        if(strlen(functionResponse) + 1 >= maxLength)
+        {
+            strncpy(response, functionResponse, maxLength - 2);
+            response[maxLength - 1] = '\0';
+        }
+        else
+        {
+            strcpy(response, functionResponse);
+            response[strlen(functionResponse)] = '\0';
+        }
+
+        return strlen(response);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+size_t SmartCore::processSpeakerCommand(char* command, char* response, size_t maxLength)
+{
+    char const* functionResponse;
+
+    if(strcmp(command, "SPEAKER MUTE") == 0)
+    {
+        setSpeakerMute(true);
+
+        functionResponse = "ACK";
+    }
+    else if(strcmp(command, "SPEAKER UNMUTE") == 0)
+    {
+        setSpeakerMute(false);
+
+        functionResponse = "ACK";
+    }
+    else if(strncmp(command, "SPEAKER PLAY", 12) == 0)
+    {
+        playWav(&command[13]);
+
+        functionResponse = "ACK";
+    }
+    else if(strncmp(command, "SPEAKER SAY", 11) == 0)
+    {
+        espeak(&command[12]);
+
+        functionResponse = "ACK";
+    }
+    else if(strcmp(command, "SPEAKER STOP") == 0)
+    {
+        stopSpeaker();
+
+        functionResponse = "ACK";
     }
     else
     {

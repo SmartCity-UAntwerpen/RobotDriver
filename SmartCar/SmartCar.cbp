@@ -112,6 +112,8 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="map.h" />
+		<Unit filename="moduleprocess.cpp" />
+		<Unit filename="moduleprocess.h" />
 		<Unit filename="msgqueue.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -141,6 +143,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="tagreader.h" />
+		<Unit filename="trafficlight.h" />
 		<Unit filename="trafficlightdetect.cpp" />
 		<Unit filename="trafficlightdetect.h" />
 		<Unit filename="travel.c">

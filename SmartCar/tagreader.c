@@ -1,18 +1,20 @@
 #include "tagreader.h"
 
-FILE* scriptor;
+static FILE* scriptor;
 
-int TagReaderGetUID(char *Data)
+int TagReaderGetUID(char *data)
 {
     char buffer[128];
 
-    if(Data == NULL)
+    if(data == NULL)
     {
-        printf("Error, Data is NULL.\n");
+        printf("Error, data is NULL.\n");
         return 3;   //Other error
     }
 
+    #ifdef DEBUG_TAGREADER
     printf("Start RF-tag UID scan...\n");
+    #endif
 
     //Pipe the read tag info command to scriptor, drop the error stream to null device
     scriptor = popen("echo \"FF CA 00 00 00\" | scriptor 2>&1", "r");
@@ -31,7 +33,10 @@ int TagReaderGetUID(char *Data)
         if(strstr(buffer, "Can't get readers list") != NULL)
         {
             //Reader is not connected
-            printf("Error, connot contact RF-tag tag reader\n");
+            printf("Error, cannot contact RF-tag tag reader\n");
+
+            pclose(scriptor);
+
             return 1;   //Tag reader error
         }
         else
@@ -41,8 +46,8 @@ int TagReaderGetUID(char *Data)
 
             if(token != NULL)
             {
-                strncpy(Data, token + 2, 20);   //Copy UID
-                Data[20] = '\0';    //String terminator
+                strncpy(data, token + 2, 20);   //Copy UID
+                data[20] = '\0';    //String terminator
                 found = true;
             }
         }
@@ -60,22 +65,24 @@ int TagReaderGetUID(char *Data)
     }
 }
 
-int TagReaderWriteData(int BlockNumber, int DataLength, char* Data)
+int TagReaderWriteData(int blockNumber, int dataLength, char* data)
 {
     char buffer[128];
     char command[40];
 
-    if(Data == NULL)
+    if(data == NULL)
     {
-        printf("Error, Data is NULL.\n");
+        printf("Error, data is NULL.\n");
         return 3;
     }
 
+    #ifdef DEBUG_TAGREADER
     printf("Write data to RF-tag...\n");
+    #endif
 
     //Create scriptor command
     //Byte 4: Block number, Byte 5: Data length
-    sprintf(command, "echo \"FF D6 00 %02X %02X %s\" | scriptor 2>&1", BlockNumber, DataLength, Data);
+    sprintf(command, "echo \"FF D6 00 %02X %02X %s\" | scriptor 2>&1", blockNumber, dataLength, data);
 
     //Pipe the read tag info command to scriptor, drop the error stream to null device
     scriptor = popen(command, "r");
@@ -93,7 +100,10 @@ int TagReaderWriteData(int BlockNumber, int DataLength, char* Data)
         if(strstr(buffer, "Can't get readers list") != NULL)
         {
             //Reader is not connected
-            printf("Error, connot contact RF-tag tag reader\n");
+            printf("Error, cannot contact RF-tag tag reader\n");
+
+            pclose(scriptor);
+
             return 1;   //Tag reader error
         }
         else
@@ -118,22 +128,24 @@ int TagReaderWriteData(int BlockNumber, int DataLength, char* Data)
     }
 }
 
-int TagReaderReadData(int BlockNumber, int DataLength, char* Data)
+int TagReaderReadData(int blockNumber, int dataLength, char* data)
 {
     char buffer[128];
     char command[40];
 
-    if(Data == NULL)
+    if(data == NULL)
     {
-        printf("Error, Data is NULL.\n");
+        printf("Error, data is NULL.\n");
         return 3;   //Other error
     }
 
+    #ifdef DEBUG_TAGREADER
     printf("Start RF-tag data scan...\n");
+    #endif
 
     //Create scriptor command
     //Byte 4: Block number, Byte 5: Data length
-    sprintf(command, "echo \"FF B0 00 %02X %02X\" | scriptor 2>&1", BlockNumber, DataLength);
+    sprintf(command, "echo \"FF B0 00 %02X %02X\" | scriptor 2>&1", blockNumber, dataLength);
 
     //Pipe the read tag info command to scriptor, drop the error stream to null device
     scriptor = popen(command, "r");
@@ -152,7 +164,10 @@ int TagReaderReadData(int BlockNumber, int DataLength, char* Data)
         if(strstr(buffer, "Can't get readers list") != NULL)
         {
             //Reader is not connected
-            printf("Error, connot contact RF-tag tag reader\n");
+            printf("Error, cannot contact RF-tag tag reader\n");
+
+            pclose(scriptor);
+
             return 1;   //Tag reader error
         }
         else
@@ -162,8 +177,8 @@ int TagReaderReadData(int BlockNumber, int DataLength, char* Data)
 
             if(token != NULL)
             {
-                strncpy(Data, token + 2, (DataLength*3) - 1);   //Copy UID
-                Data[(DataLength*3) - 1] = '\0';    //String terminator
+                strncpy(data, token + 2, (dataLength*3) - 1);   //Copy UID
+                data[(dataLength*3) - 1] = '\0';    //String terminator
                 found = true;
             }
         }

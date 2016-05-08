@@ -8,13 +8,7 @@
 
 #include <opencv2/opencv.hpp>
 
-typedef enum trafficlight_color
-{
-    TRAFFICLIGHT_NONE,
-    TRAFFICLIGHT_RED,
-    TRAFFICLIGHT_GREEN,
-    TRAFFICLIGHT_MAX
-} trafficlight_color;
+#include "trafficlight.h"
 
 cv::Mat rotate(cv::Mat src, double angle);
 
@@ -22,6 +16,6 @@ cv::Mat HSVmergedImage(cv::Mat im, cv::Mat hsv, cv::Mat binary, cv::Mat binary1,
 
 cv::Mat colorBoundry(cv::Mat im, int areaTreshold, bool green, bool red);
 
-int detectTrafficLight(void);
+int detectTrafficLight(cv::VideoCapture camera);
 
 #endif

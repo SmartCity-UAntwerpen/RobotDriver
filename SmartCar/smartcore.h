@@ -17,6 +17,7 @@
 #include "configfile.h"
 #include "serversocket.h"
 #include "eventgenerator.h"
+#include "moduleprocess.h"
 #include "robotapp.h"
 
 namespace SC
@@ -45,6 +46,12 @@ namespace SC
             size_t processCommand(char* command, char* response, size_t maxLength);
 
             size_t processDriveCommand(char* command, char* response, size_t maxLength);
+
+            size_t processCameraCommand(char* command, char* response, size_t maxLength);
+
+            size_t processTagCommand(char* command, char* response, size_t maxLength);
+
+            size_t processSpeakerCommand(char* command, char* response, size_t maxLength);
 
         private:
             static SmartCore* smartCore_instance;

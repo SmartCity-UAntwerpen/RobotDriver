@@ -24,6 +24,7 @@
 #include "restInterface.h"
 #include "json.h"
 #include "serversocket.h"
+#include "moduleprocess.h"
 
 #ifdef __cplusplus	//Check if the compiler is C++
     #include "camera.h"
