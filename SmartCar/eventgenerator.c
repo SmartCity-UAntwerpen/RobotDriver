@@ -64,6 +64,28 @@ void* tagReadEvent(void* args)
     return NULL;
 }
 
+void* getDriveDistance(void* args)
+{
+    void* eventValue;
+    msg_t* event = _createDefaultEventMsg();
+    int wheelL, wheelR;
+    int wheelAverage;
+
+    wheelAverage = getWheelPosition(&wheelL, &wheelR);
+
+    event->id = EVENT_TRAVEL_DISTANCE;
+    event->numOfParm = 1;
+
+    eventValue = malloc(sizeof(int));
+    memcpy(eventValue, (void*)&wheelAverage, sizeof(int));
+
+    event->values = eventValue;
+
+    publishEvent(event);
+
+    return NULL;
+}
+
 msg_t* _createDefaultEventMsg(void)
 {
     msg_t* eventMsg = (msg_t*) malloc (sizeof(msg_t));

@@ -1,10 +1,10 @@
 #ifndef DRIVE_H
 #define DRIVE_H
 
+#include <pthread.h>
 #include "robotapp.h"
 #include "timestep.h"
 #include "math.h"
-#include <pthread.h>
 
 #ifdef __cplusplus	//Check if the compiler is C++
 	extern "C"	//Code needs to be handled as C-style code
@@ -28,6 +28,8 @@ int pauseDriving(void);
 int continueDriving(void);
 
 int WaitForDriving(void);
+
+int getWheelPosition(int* posL, int* posR);
 
 bool IsDriving(void);
 

@@ -64,16 +64,19 @@ void* AbortHandler(void *arg)
             res=LegoMotorDirectControl(&LegoMotor,3,0);
             if(res>0) printf("Abort handler: LegoMotorDirectControl() CH3 fail.\n");
             printf("6\n");
+            res=stopProcessModules();
+            if(res>0) printf("Abort handler: Stopping process modules failed.\n");
+            printf("7\n");
             res=stopRestInterface();
             if(res>0) printf("Abort handler: Closing REST interface failed.\n");
-            printf("7\n");
+            printf("8\n");
             stopListening(&TCP_TaskSocket);
             res=releaseSocket(&TCP_TaskSocket);
             if(res>0) printf("Abort handler: Closing TCP task socket failed.\n");
             stopListening(&TCP_EventSocket);
             res=releaseSocket(&TCP_EventSocket);
             if(res>0) printf("Abort handler: Closing TCP event socket failed.\n");
-            printf("8\n");
+            printf("9\n");
             res=RS485ClientDeinit(&RS485Client);
             if(res>0) printf("Abort handler: RS485ClientDeinit() fail.\n");
 

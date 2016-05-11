@@ -34,7 +34,7 @@ Mat HSVmergedImage(Mat im, Mat hsv, Mat binary, Mat binary1, Mat binary2, Mat ts
     return imgToProcess;
 }
 
-Mat colorBoundry(Mat im, int areaTreshold, bool green, bool red)
+Mat colorBoundry(Mat im, int areaTreshold, bool* green, bool* red)
 {
     vector< vector<Point> > contours;
     vector<Vec4i> hierarchy;
@@ -80,17 +80,16 @@ Mat colorBoundry(Mat im, int areaTreshold, bool green, bool red)
                 {
                     if(center[i].y <= center[contourInt].y)
                     {
-                        green = true;
-                        red = false;
+                        *green = true;
+                        *red = false;
                     }
                     else if(center[i].y >= center[contourInt].y)
                     {
-                        red = true;
-                        green = false;
+                        *red = true;
+                        *green = false;
                     }
                 }
             }
-
             contourInt = i;
         }
     }
@@ -116,7 +115,7 @@ int detectTrafficLight(VideoCapture camera)
 
     mergedImage = HSVmergedImage(frame, hsv, binary, binaryOne, binaryTwo, tempImage);
 
-    boundryImage = colorBoundry(mergedImage, areaThreshold, green, red);
+    boundryImage = colorBoundry(mergedImage, areaThreshold, &green, &red);
 
     if(red)
     {

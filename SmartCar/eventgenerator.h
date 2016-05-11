@@ -4,6 +4,7 @@
 #include "msgqueue.h"
 #include "eventpublisher.h"
 #include "trafficlight.h"
+#include "drive.h"
 
 #ifdef __cplusplus	//Check if the compiler is C++
 	extern "C"	//Code needs to be handled as C-style code
@@ -15,6 +16,8 @@ void* driveFinishedEvent(void* args);
 void* trafficLightDetectedEvent(void* args);
 
 void* tagReadEvent(void* args);
+
+void* getDriveDistance(void* args);
 
 msg_t* _createDefaultEventMsg(void);
 

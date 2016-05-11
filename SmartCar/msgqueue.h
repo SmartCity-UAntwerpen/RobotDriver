@@ -48,7 +48,9 @@ typedef enum msg_id_drive
 typedef enum msg_id_event
 {
     EVENT_DRIVE_FINISHED,
+    EVENT_TRAVEL_DISTANCE,
     EVENT_TRAFFICLIGHT_DETECTION,
+    EVENT_TAG_DETECTION,
     MSG_ID_EVENT_TOTAL
 } msg_id_event;
 

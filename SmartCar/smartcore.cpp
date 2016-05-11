@@ -382,7 +382,7 @@ size_t SmartCore::processCommand(char* command, char* response, size_t maxLength
     else if(strcmp(command, "HELP") == 0 || strcmp(command, "?") == 0)
     {
         //Help command
-        functionResponse = "KNOWN COMMANDS: DRIVE [ABORT, FLUSH, FOLLOWLINE, PAUSE, RESUME, FORWARD, BACKWARDS, TURN, ROTATE], CAMERA [TRAFFICLIGHT], TAG [READ UID], SPEAKER [MUTE, UNMUTE, PLAY, SAY, STOP], SHUTDOWN, HELP";
+        functionResponse = "KNOWN COMMANDS: DRIVE [ABORT, FLUSH, FOLLOWLINE, PAUSE, RESUME, FORWARD, BACKWARDS, TURN, ROTATE, DISTANCE], CAMERA [TRAFFICLIGHT], TAG [READ UID], SPEAKER [MUTE, UNMUTE, PLAY, SAY, STOP], SHUTDOWN, HELP";
     }
     else
     {
@@ -620,6 +620,12 @@ size_t SmartCore::processDriveCommand(char* command, char* response, size_t maxL
 
             functionResponse = "ACK";
         }
+    }
+    else if(strncmp(command, "DRIVE DISTANCE", 14) == 0)
+    {
+        getDriveDistance(NULL);
+
+        functionResponse = "ACK";
     }
     else
     {
