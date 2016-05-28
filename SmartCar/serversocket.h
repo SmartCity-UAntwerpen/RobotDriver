@@ -15,6 +15,7 @@
 #include "lin-delay.h"
 #include "project.h"
 #include "config.h"
+#include "eventpublisher.h"
 
 #ifdef __cplusplus	//Check if the compiler is C++
 	extern "C"	//Code needs to be handled as C-style code
@@ -29,6 +30,7 @@
  * @brief callback type for the command PacketReceived
  */
 typedef size_t PacketReceivedCallback_t(char* message, char* response, size_t maxLength);
+typedef void* HandleConnectionCallback_t(void* args);
 
 typedef enum socket_mode
 {
@@ -43,6 +45,7 @@ typedef struct connection_t
     bool abort;
     int connectionSocket;
     pthread_t connectionThread;
+    pthread_mutex_t connectionBusy;
     PacketReceivedCallback_t* packetReceivedCallback;
     struct connection_t* next;
 } connection_t;
@@ -56,6 +59,8 @@ typedef struct socket_t
     bool listening;
     pthread_t socketListenerThread;
     PacketReceivedCallback_t* packetReceivedCallback;
+    HandleConnectionCallback_t* handleConnectionCallback;
+
     //struct connection_t* connections;
     int connections;    //Temporarily implementation (Only one connection allowed)
 } socket_t;
@@ -74,13 +79,17 @@ int closeConnections(socket_t* socket_p);
  */
 void setPacketReceivedCallback(socket_t* socket_p, PacketReceivedCallback_t callback);
 
+void setConnectionHandleCallback(socket_t* socket_p, HandleConnectionCallback_t callback);
+
 int socketReady(socket_t* socket_p);
 
 void* listeningUDPThread(void* args);
 
 void* listeningTCPThread(void* args);
 
-void* handleTCPConnection(void* args);
+void* handleTaskTCPConnection(void* args);
+
+void* handleEventTCPConnection(void* args);
 
 int getSocketPort(socket_t* socket_p);
 

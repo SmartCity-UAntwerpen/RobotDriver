@@ -77,6 +77,7 @@ int initialiseSocket(socket_t* socket_p, int port, socket_mode mode)
 	socket_p->socketOpen = true;
 	socket_p->mode = mode;
 	socket_p->listening = false;
+	socket_p->handleConnectionCallback = NULL;
 	//socket_p->connections = NULL; //Temporarily implmementation (ONLY one connection allowed)
     socket_p->connections = 0;
 
@@ -208,6 +209,11 @@ void setPacketReceivedCallback(socket_t* socket_p, PacketReceivedCallback_t call
 	socket_p->packetReceivedCallback = callback;
 }
 
+void setConnectionHandleCallback(socket_t* socket_p, HandleConnectionCallback_t callback)
+{
+    socket_p->handleConnectionCallback = callback;
+}
+
 int socketReady(socket_t* socket_p)
 {
 	return socket_p->listening;
@@ -279,7 +285,10 @@ void* listeningTCPThread(void* args)
             //Add connection to TCP socket
             socket->connections = socketConnection;
 
-            handleTCPConnection(socket);
+            if(socket->handleConnectionCallback != NULL)
+            {
+                socket->handleConnectionCallback(socket);
+            }
 
             #ifdef DEBUG_SOCKET
             printf("Client disconnected on port: %d (TCP)\n", socket->listeningPort);
@@ -298,9 +307,9 @@ void* listeningTCPThread(void* args)
     return NULL;
 }
 
-void* handleTCPConnection(void* args)
+void* handleTaskTCPConnection(void* args)
 {
-    int readStatus = 1;
+    int readStatus;
     size_t responseSize;
     char response[RESPONSE_SIZE] = "\0";
 	char buffer[MESSAGE_SIZE] = "\0";
@@ -319,7 +328,7 @@ void* handleTCPConnection(void* args)
 
 	writeLine(socketConnection, response, strlen(response));
 
-    while(readStatus && serverSocket->listening)
+    while(serverSocket->listening)
     {
         readStatus = readLine(socketConnection, buffer, MESSAGE_SIZE, &(serverSocket->listening));
 
@@ -355,6 +364,103 @@ void* handleTCPConnection(void* args)
             return NULL;
         }
     }
+
+	return NULL;
+}
+
+void* handleEventTCPConnection(void* args)
+{
+    int writeStatus;
+    int readStatus;
+    char readBuffer;
+    char response[RESPONSE_SIZE] = "\0";
+	char buffer[MESSAGE_SIZE] = "\0";
+	char* eventString = NULL;
+
+    socket_t* serverSocket = (socket_t*) args;
+    int socketConnection = serverSocket->connections;
+    char* carName = getConfigValue(CONFIG_CARNAME);
+
+    //Send greeting message
+    strcpy(response, "SmartCity Car: ");
+    strcat(response, carName);
+    strcat(response, " - Version: ");
+    strcat(response, APP_VERSION);
+    strcat(response, "\r\n");
+    response[29 + strlen(carName) + strlen(APP_VERSION)] = '\0';
+
+    startEventPublisher();
+
+	writeLine(socketConnection, response, strlen(response));
+
+    while(serverSocket->listening)
+    {
+        if(eventAvailable())
+        {
+            //Get event string
+            eventString = getNextEventString();
+
+            if(eventString != NULL)
+            {
+                //Send message restricted by message size
+                memcpy(buffer, eventString, MESSAGE_SIZE - 1);
+                buffer[MESSAGE_SIZE - 1] = '\0';
+
+                writeStatus = writeLine(socketConnection, buffer, strlen(buffer));
+
+                //Free event string
+                free(eventString);
+                eventString = NULL;
+
+                if(writeStatus == 0)
+                {
+                    //Connection closed
+                    stopEventPublisher();
+
+                    return NULL;
+                }
+                else if(writeStatus < 0)
+                {
+                    //Error occured while writing to socket
+                    #ifdef DEBUG_SOCKET
+                    printf("Error writing line to socket on port: %d (TCP)\n", serverSocket->listeningPort);
+                    #endif
+
+                    stopEventPublisher();
+
+                    return NULL;
+                }
+            }
+        }
+        else
+        {
+            //No event to publish
+            _delay_ms(100);
+
+            //Check if connection is still open
+            readStatus = read(socketConnection, &readBuffer, 1);
+
+            if(readStatus == 0)
+            {
+                //Connection closed
+                stopEventPublisher();
+
+                return NULL;
+            }
+            else if(readStatus < -1)
+            {
+                //Error occured while reading socket
+                if(errno != EINTR)
+                {
+                    stopEventPublisher();
+
+                    return NULL;
+                }
+            }
+        }
+    }
+
+    stopEventPublisher();
 
 	return NULL;
 }
@@ -433,7 +539,7 @@ ssize_t writeLine(int connection_p, const char* msg, size_t length)
 
     while(nLeft > 0)
     {
-        if((nWritten = write(connection_p, buffer, nLeft)) <= 0)
+        if((nWritten = send(connection_p, buffer, nLeft, MSG_NOSIGNAL)) <= 0)
         {
             if(errno == EINTR)
             {

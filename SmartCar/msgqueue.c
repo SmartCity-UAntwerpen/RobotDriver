@@ -87,6 +87,56 @@ int addMsg(msgqueue_t* msgqueue, msg_t* message)
     return 0;
 }
 
+bool queueIsEmpty(msgqueue_t* msgqueue)
+{
+    if(msgqueue == NULL)
+    {
+        //Message queue can not be null
+        return true;
+    }
+
+    if(msgqueue->queuePointer == NULL)
+    {
+        //Queue empty
+        return true;
+    }
+    else
+    {
+        //Message available
+        return false;
+    }
+}
+
+msg_t* getNextMsg(msgqueue_t* msgqueue)
+{
+    struct msg_t* msgPointer = NULL;
+
+    if(msgqueue == NULL)
+    {
+        //Message queue can not be null
+        return NULL;
+    }
+
+    pthread_mutex_lock(&msgqueue->queueLock);
+
+    if(msgqueue->queuePointer == NULL)
+    {
+        //Message queue is empty
+        pthread_mutex_unlock(&msgqueue->queueLock);
+
+        return NULL;
+    }
+
+    msgPointer = msgqueue->queuePointer;
+
+    //Remove message from queue
+    msgqueue->queuePointer = msgqueue->queuePointer->Next;
+
+    pthread_mutex_unlock(&msgqueue->queueLock);
+
+    return msgPointer;
+}
+
 int freeMsg(msg_t* message)
 {
     if(message == NULL)
