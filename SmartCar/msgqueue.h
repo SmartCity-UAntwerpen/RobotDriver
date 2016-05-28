@@ -51,6 +51,8 @@ typedef enum msg_id_event
     EVENT_TRAVEL_DISTANCE,
     EVENT_TRAFFICLIGHT_DETECTION,
     EVENT_TAG_DETECTION,
+    EVENT_LIFT_GOTO,
+    EVENT_LIFT_HEIGHT,
     MSG_ID_EVENT_TOTAL
 } msg_id_event;
 

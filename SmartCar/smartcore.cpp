@@ -254,6 +254,32 @@ int SmartCore::initialiseCore(int argc, char *argv[])
         printf("OK\n");
     }
 
+    //Initialise lift motor
+    char* liftActive = getConfigValue(CONFIG_LIFTACTIVE);
+
+    AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
+    printf("Initialise lift...");
+
+    if(strncmp(liftActive, "on", 2) == 0)
+    {
+        res = LiftInit();
+        if(res > 0)
+        {
+            AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_YELLOW);
+            printf("WARNING: could not initialise lift. LiftInit() error code %d\n", res);
+        }
+        else
+        {
+            AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_GREEN);
+            printf("OK\n");
+        }
+    }
+    else
+    {
+        AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_CYAN);
+        printf("DISABLED IN CONFIG\n");
+    }
+
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
     return 0;
 }
@@ -367,6 +393,11 @@ size_t SmartCore::processCommand(char* command, char* response, size_t maxLength
         //Tag commands
         return processTagCommand(command, response, maxLength);
     }
+    else if(strncmp(command, "LIFT", 4) == 0)
+    {
+        //Lift commands
+        return processLiftCommand(command, response, maxLength);
+    }
     else if(strncmp(command, "SPEAKER", 7) == 0)
     {
         //Speaker commands
@@ -382,7 +413,7 @@ size_t SmartCore::processCommand(char* command, char* response, size_t maxLength
     else if(strcmp(command, "HELP") == 0 || strcmp(command, "?") == 0)
     {
         //Help command
-        functionResponse = "KNOWN COMMANDS: DRIVE [ABORT, FLUSH, FOLLOWLINE, PAUSE, RESUME, FORWARD, BACKWARDS, TURN, ROTATE, DISTANCE], CAMERA [TRAFFICLIGHT], TAG [READ UID], SPEAKER [MUTE, UNMUTE, PLAY, SAY, STOP], SHUTDOWN, HELP";
+        functionResponse = "KNOWN COMMANDS: DRIVE [ABORT, FLUSH, FOLLOWLINE, PAUSE, RESUME, FORWARD, BACKWARDS, TURN, ROTATE, DISTANCE], CAMERA [TRAFFICLIGHT], TAG [READ UID], LIFT [GOTO, HEIGHT], SPEAKER [MUTE, UNMUTE, PLAY, SAY, STOP], SHUTDOWN, HELP";
     }
     else
     {
@@ -702,6 +733,60 @@ size_t SmartCore::processTagCommand(char* command, char* response, size_t maxLen
     {
         if(startReadTagUID() == 0)
         {
+            functionResponse = "ACK";
+        }
+        else
+        {
+            functionResponse = "NACK";
+        }
+    }
+    else
+    {
+        functionResponse = "UNKNOWN COMMAND";
+    }
+
+    if(response != NULL)
+    {
+        if(strlen(functionResponse) + 1 >= maxLength)
+        {
+            strncpy(response, functionResponse, maxLength - 2);
+            response[maxLength - 1] = '\0';
+        }
+        else
+        {
+            strcpy(response, functionResponse);
+            response[strlen(functionResponse)] = '\0';
+        }
+
+        return strlen(response);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+size_t SmartCore::processLiftCommand(char* command, char* response, size_t maxLength)
+{
+    char const* functionResponse;
+
+    if(strncmp(command, "LIFT GOTO", 9) == 0)
+    {
+        if(startLiftGoto(atoi(&command[10])) == 0)
+        {
+            functionResponse = "ACK";
+        }
+        else
+        {
+            functionResponse = "NACK";
+        }
+    }
+    else if(strcmp(command, "LIFT HEIGHT") == 0)
+    {
+        if(liftInitialised())
+        {
+            getLiftHeight(NULL);
+
             functionResponse = "ACK";
         }
         else

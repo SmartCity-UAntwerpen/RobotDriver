@@ -150,6 +150,15 @@ char* getNextEventString(void)
             strcat(eventMessage, "TRAVEL DISTANCE EVENT: ");
             strcat(eventMessage, buffer);
             break;
+        case EVENT_LIFT_GOTO:
+            strcat(eventMessage, "LIFT GOTO EVENT: ");
+            strcat(eventMessage, (char*)event->values);
+            break;
+        case EVENT_LIFT_HEIGHT:
+            sprintf(buffer, "%.0f", *((float*)event->values));
+            strcat(eventMessage, "LIFT HEIGHT EVENT: ");
+            strcat(eventMessage, buffer);
+            break;
         default:
             //Invalid event identifier
             return NULL;

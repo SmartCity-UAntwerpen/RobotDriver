@@ -19,6 +19,10 @@ void* tagReadEvent(void* args);
 
 void* getDriveDistance(void* args);
 
+void* liftGotoEvent(void* args);
+
+void* getLiftHeight(void* args);
+
 msg_t* _createDefaultEventMsg(void);
 
 #ifdef __cplusplus		//Check if the compiler is C++

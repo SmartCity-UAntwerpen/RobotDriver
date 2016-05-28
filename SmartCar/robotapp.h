@@ -16,6 +16,7 @@
 #include <stdbool.h>
 #include "speaker.h"
 #include "drive.h"
+#include "lift.h"
 #include "msgqueue.h"
 #include "drivequeue.h"
 #include "travel.h"

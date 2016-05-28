@@ -108,7 +108,6 @@ int _createModuleProcess(module_id id, moduleProcessFunction_t functionCall, voi
     }
 }
 
-
 int startTrafficLightDetection(void)
 {
     return _createModuleProcess(MODULE_CAMERA, _trafficLightDetectionProcess, NULL);
@@ -148,6 +147,41 @@ void* _readTagUIDProcess(void* args)
     tagReadEvent(&UIDTag);
 
     moduleProcesses[MODULE_TAGREADER].running = false;
+
+    return NULL;
+}
+
+int startLiftGoto(float height)
+{
+    if(!liftInitialised())
+    {
+        //Lift is not initialised or enabled
+        return 4;
+    }
+
+    return _createModuleProcess(MODULE_LIFT, _liftGotoProcess, (void*)&height);
+}
+
+void* _liftGotoProcess(void* args)
+{
+    int result = 0;
+    const char* eventValue;
+    float* height = (float*)args;
+
+    result = LiftGoto(*height);
+
+    if(result == 0)
+    {
+        eventValue = "DONE";
+    }
+    else
+    {
+        eventValue = "ERROR";
+    }
+
+    liftGotoEvent((void*)eventValue);
+
+    moduleProcesses[MODULE_LIFT].running = false;
 
     return NULL;
 }

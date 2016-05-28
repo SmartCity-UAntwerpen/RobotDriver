@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include "eventgenerator.h"
 #include "tagreader.h"
+#include "lift.h"
 
 #ifdef __cplusplus	//Check if the compiler is C++
 	#include "camera.h"
@@ -27,6 +28,7 @@ typedef enum module_id
 {
     MODULE_TAGREADER,
     MODULE_CAMERA,
+    MODULE_LIFT,
     MODULE_ID_TOTAL
 } module_id;
 
@@ -49,6 +51,10 @@ void* _trafficLightDetectionProcess(void* args);
 int startReadTagUID(void);
 
 void* _readTagUIDProcess(void* args);
+
+int startLiftGoto(float height);
+
+void* _liftGotoProcess(void* args);
 
 #ifdef __cplusplus		//Check if the compiler is C++
 	}		//End the extern "C" bracket

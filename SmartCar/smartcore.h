@@ -51,6 +51,8 @@ namespace SC
 
             size_t processTagCommand(char* command, char* response, size_t maxLength);
 
+            size_t processLiftCommand(char* command, char* response, size_t maxLength);
+
             size_t processSpeakerCommand(char* command, char* response, size_t maxLength);
 
         private:

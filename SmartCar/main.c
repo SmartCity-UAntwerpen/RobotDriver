@@ -113,9 +113,6 @@ int main(int argc, char *argv[])
 
     AnsiCls();
 
-AnsiSetColor(ANSI_ATTR_BLINK,ANSI_BLACK,ANSI_RED);
-printf("ABORT BUTTON HARD CODED TURNED OFF! LINE 30\n");
-
     AnsiSetColor(ANSI_ATTR_OFF,ANSI_BLACK,ANSI_WHITE);
     printBanner();
 

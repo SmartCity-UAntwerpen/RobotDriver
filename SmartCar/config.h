@@ -23,6 +23,7 @@ typedef enum ConfigKey
     CONFIG_LISTENINGPORT,
     CONFIG_PUBLISHPORT,
     CONFIG_SERVERURL,
+    CONFIG_LIFTACTIVE,
     CONFIG_MAX
 } ConfigKey;
 

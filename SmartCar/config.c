@@ -37,6 +37,14 @@ int initConfiguration(void)
         return 1;
     }
 
+    //Config Activate Lift
+    if(_initConfigPair(CONFIG_LIFTACTIVE, "liftenable", "on") > 0)
+    {
+        printf("Could not allocate memory for configuration!\n");
+
+        return 1;
+    }
+
     return 0;
 }
 

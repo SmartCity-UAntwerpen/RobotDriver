@@ -86,6 +86,48 @@ void* getDriveDistance(void* args)
     return NULL;
 }
 
+void* liftGotoEvent(void* args)
+{
+    void* eventValue;
+    msg_t* event = _createDefaultEventMsg();
+
+    event->id = EVENT_LIFT_GOTO;
+    event->numOfParm = 1;
+
+    eventValue = malloc(strlen((char*)args) + 1);
+    memcpy(eventValue, args, strlen((char*)args) + 1);
+
+    event->values = eventValue;
+
+    publishEvent(event);
+
+    return NULL;
+}
+
+void* getLiftHeight(void* args)
+{
+    void* eventValue;
+    msg_t* event;
+    float liftHeight;
+
+    if(LiftGetHeight(&liftHeight) == 0)
+    {
+        event = _createDefaultEventMsg();
+
+        event->id = EVENT_LIFT_HEIGHT;
+        event->numOfParm = 1;
+
+        eventValue = malloc(sizeof(float));
+        memcpy(eventValue, (void*)&liftHeight, sizeof(float));
+
+        event->values = eventValue;
+
+        publishEvent(event);
+    }
+
+    return NULL;
+}
+
 msg_t* _createDefaultEventMsg(void)
 {
     msg_t* eventMsg = (msg_t*) malloc (sizeof(msg_t));

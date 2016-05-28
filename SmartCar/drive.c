@@ -183,6 +183,19 @@ int DriveStraightDistance(float Distance, float Speed)
 {
     pthread_mutex_lock(&_driveThreadLock);
 
+    if(Distance == 0)
+    {
+        // reset angular motor position
+        encoderL = 0;
+        encoderR = 0;
+
+        _driveThreadRunning = false;
+
+        pthread_mutex_unlock(&_driveThreadLock);
+
+        return 0;
+    }
+
     if(!_driveThreadRunning)
     {
         _Distance = Distance;
@@ -303,6 +316,19 @@ int DriveRotateRWheel(float Angle,float Speed)
 {
     pthread_mutex_lock(&_driveThreadLock);
 
+    if(Angle == 0)
+    {
+        // reset angular motor position
+        encoderL = 0;
+        encoderR = 0;
+
+        _driveThreadRunning = false;
+
+        pthread_mutex_unlock(&_driveThreadLock);
+
+        return 0;
+    }
+
     if(!_driveThreadRunning)
     {
         _Angle = Angle;
@@ -418,6 +444,19 @@ int DriveRotateLWheel(float Angle, float Speed)
 {
     pthread_mutex_lock(&_driveThreadLock);
 
+    if(Angle == 0)
+    {
+        // reset angular motor position
+        encoderL = 0;
+        encoderR = 0;
+
+        _driveThreadRunning = false;
+
+        pthread_mutex_unlock(&_driveThreadLock);
+
+        return 0;
+    }
+
     if(!_driveThreadRunning)
     {
         _Angle = Angle;
@@ -532,6 +571,19 @@ void* _DriveRotateLWheel(void* args)
 int DriveRotateCenter(float Angle, float Speed)
 {
     pthread_mutex_lock(&_driveThreadLock);
+
+    if(Angle == 0)
+    {
+        // reset angular motor position
+        encoderL = 0;
+        encoderR = 0;
+
+        _driveThreadRunning = false;
+
+        pthread_mutex_unlock(&_driveThreadLock);
+
+        return 0;
+    }
 
     if(!_driveThreadRunning)
     {
@@ -691,6 +743,19 @@ int calibrate()
 int DriveLineFollowDistance(int Distance, float Speed)
 {
     pthread_mutex_lock(&_driveThreadLock);
+
+    if(Distance == 0)
+    {
+        // reset angular motor position
+        encoderL = 0;
+        encoderR = 0;
+
+        _driveThreadRunning = false;
+
+        pthread_mutex_unlock(&_driveThreadLock);
+
+        return 0;
+    }
 
     if(!_driveThreadRunning)
     {
