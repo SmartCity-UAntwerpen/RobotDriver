@@ -1,7 +1,7 @@
-SmartCityCar
+RobotDriver
 ============
 
-The SmartCity Car is the low-level driver program developed in C which runs on the SmartCars in the SmartCity.
+The Robot Driver is the low-level driver program developed in C which runs on the SmartCars in the SmartCity.
 This driver module is a part of the SmartCity Project. The SmartCar is an embedded robot vehicle designed and
 build by Professor Paillet Eric of the University of Antwerp. The SmartCar is equiped with Lego Mindstorm
 actuators and sensors. These are connected with custom PCBs to a Raspberri Pi for processing.
