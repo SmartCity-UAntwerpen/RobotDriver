@@ -3,6 +3,9 @@
 
 #include <opencv2/opencv.hpp>
 
+#define CAMERA_CAPTURE_W 640
+#define CAMERA_CAPTURE_H 480
+
 int initCamera(void);
 
 int initCamera(int cam);

@@ -40,7 +40,7 @@ int LiftInit(void)
     }
     else
     {
-        //Could not state of switch
+        //Could not get state of switch
         //Turn off motor
         LegoMotorDirectControl(&LegoMotor, 3, 0);
 
@@ -52,12 +52,12 @@ int LiftInit(void)
         return 1;
     }
 
-    // Put brake on lift
+    //Put brake on lift
     LegoMotorSetup(&LegoMotor, 3, 1, 0);
 
     _delay_ms(200);
 
-    // Set angle as 0
+    //Set angle as 0
     LegoMotorSetPos(&LegoMotor, 3, 0);
 
     liftInit = true;
@@ -114,7 +114,7 @@ int LiftGoto(float Height)
         }
         else
         {
-            // Go DOWN
+            //Go DOWN
             LegoMotorDirectControl(&LegoMotor, 3, -30000);
 
             while(pos >= newPos)

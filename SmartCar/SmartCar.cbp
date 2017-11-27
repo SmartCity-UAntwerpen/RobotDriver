@@ -20,52 +20,44 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="../../minimod/Libs/ansi.c">
+		<Unit filename="../Libs/ansi.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../../minimod/Libs/ansi.h" />
-		<Unit filename="../../minimod/Libs/datatypes.h" />
-		<Unit filename="../../minimod/Libs/lego-motor.c">
+		<Unit filename="../Libs/ansi.h" />
+		<Unit filename="../Libs/datatypes.h" />
+		<Unit filename="../Libs/lego-motor.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../../minimod/Libs/lego-motor.h" />
-		<Unit filename="../../minimod/Libs/lego-motorRegs.h" />
-		<Unit filename="../../minimod/Libs/lego-sensor.c">
+		<Unit filename="../Libs/lego-motor.h" />
+		<Unit filename="../Libs/lego-motorRegs.h" />
+		<Unit filename="../Libs/lego-sensor.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../../minimod/Libs/lego-sensor.h" />
-		<Unit filename="../../minimod/Libs/lego-sensorRegs.h" />
-		<Unit filename="../../minimod/Libs/lin-delay.c">
+		<Unit filename="../Libs/lego-sensor.h" />
+		<Unit filename="../Libs/lego-sensorRegs.h" />
+		<Unit filename="../Libs/lin-delay.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../../minimod/Libs/lin-delay.h" />
-		<Unit filename="../../minimod/Libs/lin-gpio.c">
+		<Unit filename="../Libs/lin-delay.h" />
+		<Unit filename="../Libs/lin-gpio.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../../minimod/Libs/lin-gpio.h" />
-		<Unit filename="../../minimod/Libs/lin-lego-motor-log.c">
+		<Unit filename="../Libs/lin-gpio.h" />
+		<Unit filename="../Libs/lin-lego-motor-log.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../../minimod/Libs/lin-lego-motor-log.h" />
-		<Unit filename="../../minimod/Libs/lin-rpi-gpio.c">
+		<Unit filename="../Libs/lin-lego-motor-log.h" />
+		<Unit filename="../Libs/lin-rpi-gpio.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../../minimod/Libs/lin-rpi-gpio.h" />
-		<Unit filename="../../minimod/Libs/lin-rpi-serlib.c">
+		<Unit filename="../Libs/lin-rpi-gpio.h" />
+		<Unit filename="../Libs/lin-rpi-serlib.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../../minimod/Libs/rf-cc1101.c">
+		<Unit filename="../Libs/rf-cc1101.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../../minimod/Libs/rf-cc1101.h" />
-		<Unit filename="../lib/TimeSupport.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../lib/TimeSupport.h" />
-		<Unit filename="../lib/timestep.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../lib/timestep.h" />
+		<Unit filename="../Libs/rf-cc1101.h" />
 		<Unit filename="Makefile" />
 		<Unit filename="camera.cpp" />
 		<Unit filename="camera.h" />
@@ -105,6 +97,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="json.h" />
+		<Unit filename="lift.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lift.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -156,11 +152,11 @@
 		<Unit filename="watchdog.h" />
 		<Extensions>
 			<code_completion>
-				<search_path add="/home/lubuntu/minimod/Libs" />
-				<search_path add="/home/lubuntu/rpi/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/arm-bcm2708hardfp-linux-gnueabi/sysroot/usr/include" />
+				<search_path add="/home/robotdev/minimod/Libs" />
+				<search_path add="/home/robotdev/rpi/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/arm-bcm2708hardfp-linux-gnueabi/sysroot/usr/include" />
 			</code_completion>
 			<debugger>
-				<search_path add="/home/lubuntu/robotica/SmartCar/" />
+				<search_path add="/home/robotdev/SmartCity/SmartCar/" />
 				<remote_debugging>
 					<options conn_type="0" serial_baud="115200" ip_address="robot1" ip_port="5000" />
 				</remote_debugging>
@@ -168,6 +164,7 @@
 					<options conn_type="0" serial_baud="115200" ip_address="robot1" ip_port="5000" />
 				</remote_debugging>
 			</debugger>
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

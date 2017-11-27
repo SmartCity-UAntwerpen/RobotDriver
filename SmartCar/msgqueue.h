@@ -42,6 +42,7 @@ typedef enum msg_id_drive
     DRIVE_ANGLE_LEFT,
     DRIVE_ROTATE_RIGHT,
     DRIVE_ROTATE_LEFT,
+    DRIVE_CALIBRATE,
     MSG_ID_DRIVE_TOTAL
 } msg_id_drive;
 

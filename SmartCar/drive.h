@@ -6,6 +6,10 @@
 #include "timestep.h"
 #include "math.h"
 
+#define TIMESLOT_LEN 10000  //Default timeslot: 10ms
+#define ENCODER_MAX_POS_VAL 32768
+#define ENCODER_MAX_NEG_VAL 32769
+
 #ifdef __cplusplus	//Check if the compiler is C++
 	extern "C"	//Code needs to be handled as C-style code
 	{
@@ -66,7 +70,7 @@ int DriveRotateCenter(float Angle, float Speed);
 void* _DriveRotateCenter(void* args);
 
 /**
- * \brief Follow line until specified distance has been travelled
+ * \brief Follow line until specified distance has been traveled.
  * \param Distance :Distance to travel in mm
  * \param Speed :Speed in mm/s
 */
@@ -74,7 +78,7 @@ int DriveLineFollowDistance(int Distance, float Speed);
 void* _DriveLineFollowDistance(void* args);
 
 /**
- * \brief Follow line until end of line segment
+ * \brief Follow line until end of line segment.
  * \param Speed :Speed in mm/s
 */
 int DriveLineFollow(float Speed);
@@ -82,11 +86,23 @@ void* _DriveLineFollow(void* args);
 
 /**
  * \brief Calibrate sensors for following a line.
- * \return The correction factor to take into account.
 */
-int calibrate(void);
+int Calibrate(void);
+void* _Calibrate(void* args);
 
-void _pauseDrivingLoop(float* lMotorAngle, float* rMotorAngle);
+void _pauseDrivingLoop(sint16* lMotorAngle, sint16* rMotorAngle);
+
+/**
+ * \brief Set the left motor target (PID) with overflow protection of the encoders.
+ * \param Angle :Angle in degrees
+*/
+void setLeftMotorEncoder(float Angle);
+
+/**
+ * \brief Set the right motor target (PID) with overflow protection of the encoders.
+ * \param Angle :Angle in degrees
+*/
+void setRightMotorEncoder(float Angle);
 
 #ifdef __cplusplus		//Check if the compiler is C++
 	}		//End the extern "C" bracket

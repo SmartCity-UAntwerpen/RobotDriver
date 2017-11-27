@@ -413,7 +413,7 @@ size_t SmartCore::processCommand(char* command, char* response, size_t maxLength
     else if(strcmp(command, "HELP") == 0 || strcmp(command, "?") == 0)
     {
         //Help command
-        functionResponse = "KNOWN COMMANDS: DRIVE [ABORT, FLUSH, FOLLOWLINE, PAUSE, RESUME, FORWARD, BACKWARDS, TURN, ROTATE, DISTANCE], CAMERA [TRAFFICLIGHT], TAG [READ UID], LIFT [GOTO, HEIGHT], SPEAKER [MUTE, UNMUTE, PLAY, SAY, STOP], SHUTDOWN, HELP";
+        functionResponse = "KNOWN COMMANDS: DRIVE [ABORT, FLUSH, FOLLOWLINE, PAUSE, RESUME, FORWARD, BACKWARDS, TURN, ROTATE, DISTANCE, CALIBRATE], CAMERA [TRAFFICLIGHT], TAG [READ UID], LIFT [GOTO, HEIGHT], SPEAKER [MUTE, UNMUTE, PLAY, SAY, STOP], SHUTDOWN, HELP";
     }
     else
     {
@@ -478,8 +478,19 @@ size_t SmartCore::processDriveCommand(char* command, char* response, size_t maxL
 
             distValue = atoi(&command[17]);
 
-            memcpy(msgValues, &distValue, sizeof(int));
-            message->values = msgValues;
+            if(distValue >= 0)
+            {
+                memcpy(msgValues, &distValue, sizeof(int));
+                message->values = msgValues;
+
+                addMsg(getDriveQueue(), message);
+
+                functionResponse = "ACK";
+            }
+            else
+            {
+                functionResponse = "UNSUPPORTED ACTION";
+            }
         }
         else
         {
@@ -487,11 +498,11 @@ size_t SmartCore::processDriveCommand(char* command, char* response, size_t maxL
             message->id = DRIVE_FOLLOWLINE;
             message->numOfParm = 0;
             message->values = NULL;
+
+            addMsg(getDriveQueue(), message);
+
+            functionResponse = "ACK";
         }
-
-        addMsg(getDriveQueue(), message);
-
-        functionResponse = "ACK";
     }
     else if(strcmp(command, "DRIVE PAUSE") == 0)
     {
@@ -651,10 +662,30 @@ size_t SmartCore::processDriveCommand(char* command, char* response, size_t maxL
 
             functionResponse = "ACK";
         }
+        else
+        {
+            //Unknown rotation angle
+            functionResponse = "MALFORMED COMMAND";
+        }
     }
     else if(strncmp(command, "DRIVE DISTANCE", 14) == 0)
     {
         getDriveDistance(NULL);
+
+        functionResponse = "ACK";
+    }
+    else if(strncmp(command, "DRIVE CALIBRATE", 15) == 0)
+    {
+        //Calibrate light sensors
+        message = (struct msg_t*) malloc (sizeof(struct msg_t));
+
+        message->Next = NULL;
+
+        message->id = DRIVE_CALIBRATE;
+        message->numOfParm = 0;
+        message->values = NULL;
+
+        addMsg(getDriveQueue(), message);
 
         functionResponse = "ACK";
     }

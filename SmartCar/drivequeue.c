@@ -134,7 +134,7 @@ int _startNextActivity(struct msg_t* message)
             return DriveRotateLWheel(dist_angle, 70);
         case DRIVE_ROTATE_RIGHT:
             dist_angle = ((int*)message->values)[0];
-            return DriveRotateCenter(dist_angle, 80);
+            return DriveRotateCenter(-dist_angle, 70);
         case DRIVE_TURN_LEFT:
             return DriveRotateRWheel(90, 70);
         case DRIVE_ANGLE_LEFT:
@@ -142,7 +142,9 @@ int _startNextActivity(struct msg_t* message)
             return DriveRotateRWheel(dist_angle, 70);
         case DRIVE_ROTATE_LEFT:
             dist_angle = ((int*)message->values)[0];
-            return DriveRotateCenter(-dist_angle, 80);
+            return DriveRotateCenter(dist_angle, 70);
+        case DRIVE_CALIBRATE:
+            return Calibrate();
         default:
             printf("Command id: %d unknown!", message->id);
             return -1;

@@ -1,0 +1,54 @@
+Known commands for SMARTCAR system (v. 0.0.3 - 18/05)
+
+DRIVE COMMANDS
+==============
+
+DRIVE ABORT : Abort the running drive command and flush all queued drive commands
+DRIVE FLUSH : Flush all queued drive commands (Does not interrupt running drive command)
+DRIVE PAUSE : Pause the running drive command
+DRIVE RESUME : Unpause / resume the running drive command
+DRIVE FOLLOWLINE : Follow roadline with lightsensors until end of line is reached. Returns when action is finished with event (DRIVE EVENT: FINISHED)
+DRIVE FOLLOWLINE [x] : Follow roadline with lightsensors until a distance of x is reached (does not stop on line end). Returns when action is finished with event (DRIVE EVENT: FINISHED)
+DRIVE FORWARD [x] : Drive straight forward until a distance of x is reached. Returns when action is finished with event (DRIVE EVENT: FINISHED)
+DRIVE BACKWARDS [x] : Drive straight backwards until a distance of x is reached. Returns when action is finished with event (DRIVE EVENT: FINISHED)
+DRIVE TURN [L / R] : Make a 90° turn to the left / right. Returns when action is finished with event (DRIVE EVENT: FINISHED)
+DRIVE TURN [L / R] [x] : Make a x° turn to the left / right. Returns when action is finished with event (DRIVE EVENT: FINISHED)
+DRIVE ROTATE [L / R] [x] : Rotate stationary counter-clockwise / clockwise with a angle of x°. Returns when action is finished with event (DRIVE EVENT: FINISHED)
+DRIVE DISTANCE : Read the wheel encoders and returns x, the average travelled distance in mm with event (TRAVEL DISTANCE EVENT: [x])
+DRIVE CALIBRATE : Calibrate the light sensors to track the black line for the 'FOLLOWLINE' and 'FOLLOWLINE [x]' commands (DRIVE EVENT: FINISHED)
+
+
+CAMERA COMMANDS
+===============
+
+CAMERA TRAFFICLIGHT : Use front-camera to detect state of the traffic light. Returns state with event (TRAFFICLIGHT DETECTION EVENT: [GREEN, RED, NONE, ERROR])
+
+
+TAGREADER COMMANDS
+==================
+
+TAG READ UID : Read a tag with the tagread. Returns the UID of the tag with event (TAG DETECTION EVENT: [$ID, NONE])
+
+
+LIFT COMMANDS
+=============
+
+LIFT GOTO [x] : Move the lift to x mm absolute height. Return when action is finished with event (LIFT GOTO EVENT: DONE)
+LIFT HEIGHT : Get the position of the lift and returns x, the height of the fork in mm with event (LIFT HEIGHT EVENT: [x])
+
+
+SPEAKER COMMANDS
+================
+
+SPEAKER MUTE : Mute all sounds and voices from the speaker
+SPEAKER UNMUTE : New sounds and voices will play on the speaker
+SPEAKER STOP : Stop the current playing sound or voice
+SPEAKER PLAY [x] : Play WAV file in the audio folder with the filename x.wav
+SPEAKER SAY [x] : Use the voice synthesizer to say the message x
+
+
+OTHER COMMANDS
+==============
+
+SHUTDOWN : Turn the SMARTCAR system off
+HELP / ? : Get a list of all known commands

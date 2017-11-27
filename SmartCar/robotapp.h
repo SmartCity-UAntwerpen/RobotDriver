@@ -45,6 +45,9 @@
 #define MOTOR_LEFT 2
 #define MOTOR_LIFT 3
 
+#define LSENSOR_RIGHT 1
+#define LSENSOR_LEFT 2
+
 #define SENSOR_LIFT 3
 
 extern RS485ClientStruct RS485Client;
